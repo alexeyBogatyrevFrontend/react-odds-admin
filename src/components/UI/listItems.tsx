@@ -12,6 +12,19 @@ export const mainListItems = (
 				<ListItemIcon>
 					<ArticleIcon />
 				</ListItemIcon>
+				<ListItemText primary='Создать новость' />
+			</ListItemButton>
+		</NavLink>
+	</>
+)
+
+export const listItems = (
+	<>
+		<NavLink to='/news'>
+			<ListItemButton>
+				<ListItemIcon>
+					<ArticleIcon />
+				</ListItemIcon>
 				<ListItemText primary='Новости' />
 			</ListItemButton>
 		</NavLink>

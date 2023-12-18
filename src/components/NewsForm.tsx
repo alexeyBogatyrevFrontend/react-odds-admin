@@ -1,5 +1,5 @@
 // NewsForm.tsx
-import { useState, FormEvent, FC, ChangeEvent } from 'react'
+import { useState, FormEvent, FC } from 'react'
 import {
 	TextField,
 	Button,
@@ -10,63 +10,65 @@ import {
 	Input,
 	FormHelperText,
 } from '@mui/material'
+import { useDispatch } from 'react-redux'
+import { addNews } from '../slices/newsSlice'
+
+export type newsType = {
+	title: string
+	description: string
+	image: File | null
+}
+
+const initialState = {
+	title: '',
+	description: '',
+	image: null,
+}
 
 const NewsForm: FC = () => {
-	const [title, setTitle] = useState<string>('')
-	const [description, setDescription] = useState<string>('')
-	const [image, setImage] = useState<File | null>(null)
+	const [data, setData] = useState<newsType>(initialState)
+
 	const [titleError, setTitleError] = useState<boolean>(false)
 	const [descriptionError, setDescriptionError] = useState<boolean>(false)
 	const [imageError, setImageError] = useState<boolean>(false)
 
-	const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-		if (e.target.files) {
-			const selectedFile = e.target.files[0]
+	const dispatch = useDispatch()
 
-			// Check if the selected file type is allowed
-			const allowedTypes = [
-				'image/png',
-				'image/jpeg',
-				'image/jpg',
-				'image/webp',
-				'image/gif',
-			]
-			if (!allowedTypes.includes(selectedFile.type)) {
-				setImageError(true)
-				return
-			}
-
-			setImage(selectedFile)
-			setImageError(false)
-		}
-	}
-
-	const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		// Check for empty fields
-		if (!title.length || !description.length || !image?.name.length) {
-			if (!title.length) setTitleError(true)
-			if (!description.length) setDescriptionError(true)
-			if (!image?.name.length) setImageError(true)
-
+		if (
+			!data.title.length ||
+			!data.description.length ||
+			!data.image?.name.length
+		) {
+			if (!data.title.length) setTitleError(true)
+			if (!data.description.length) setDescriptionError(true)
+			if (!data.image?.name.length) setImageError(true)
 			return
 		}
 
-		// Reset error states
 		setTitleError(false)
 		setDescriptionError(false)
 		setImageError(false)
 
-		// Perform your submission logic here
-		console.log('Title:', title)
-		console.log('Description:', description)
-		console.log('Image:', image)
+		// Convert File to data URL
+		const image = data.image
+		let imageURL = null
 
-		// Reset form fields
-		setTitle('')
-		setDescription('')
-		setImage(null)
+		if (image) {
+			imageURL = await new Promise<string | null>(resolve => {
+				const reader = new FileReader()
+				reader.onload = event => resolve(event.target?.result as string)
+				reader.readAsDataURL(image)
+			})
+		}
+
+		// Dispatch the action with a serializable payload
+		dispatch(addNews({ ...data, image: imageURL }))
+
+		// Reset form state
+		setData(initialState)
 	}
 
 	return (
@@ -81,9 +83,9 @@ const NewsForm: FC = () => {
 						label='Заголовок'
 						variant='outlined'
 						margin='normal'
-						value={title}
+						value={data.title}
 						onChange={e => {
-							setTitle(e.target.value)
+							setData(prev => ({ ...prev, title: e.target.value }))
 							setTitleError(false) // Reset error state on change
 						}}
 						error={titleError}
@@ -96,9 +98,9 @@ const NewsForm: FC = () => {
 						multiline
 						rows={4}
 						margin='normal'
-						value={description}
+						value={data.description}
 						onChange={e => {
-							setDescription(e.target.value)
+							setData(prev => ({ ...prev, description: e.target.value }))
 							setDescriptionError(false) // Reset error state on change
 						}}
 						error={descriptionError}
@@ -117,12 +119,17 @@ const NewsForm: FC = () => {
 							<Input
 								id='image-input'
 								type='file'
-								onChange={handleFileChange}
+								onChange={e =>
+									setData(prev => ({
+										...prev,
+										image: e.target.files ? e.target.files[0] : null,
+									}))
+								}
 								style={{ display: 'none' }}
 							/>
 							<label htmlFor='image-input'>
 								<Button component='span' variant='outlined' color='primary'>
-									{image ? image.name : 'Загрузить картинку'}
+									{data.image ? data.image.name : 'Загрузить картинку'}
 								</Button>
 							</label>
 							<FormHelperText>

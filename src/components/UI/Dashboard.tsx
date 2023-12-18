@@ -12,7 +12,7 @@ import Container from '@mui/material/Container'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import { mainListItems } from './listItems'
+import { listItems, mainListItems } from './listItems'
 import { FC, ReactNode, useState } from 'react'
 import Title from './Title'
 
@@ -138,7 +138,8 @@ const Dashboard: FC<DashboardType> = ({ children, pageTitle }) => {
 					<Divider />
 					<List component='nav'>
 						{mainListItems}
-						{/* <Divider sx={{ my: 1 }} /> */}
+						<Divider sx={{ my: 1 }} />
+						{listItems}
 					</List>
 				</Drawer>
 				<Box
