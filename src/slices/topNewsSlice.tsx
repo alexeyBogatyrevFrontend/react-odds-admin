@@ -21,9 +21,17 @@ const topNewsSlice = createSlice({
 				item => item.id !== action.payload
 			)
 		},
+		editTopNews: (state, action) => {
+			const { id, title, description } = action.payload
+			const index = state.topNewsList.findIndex(item => item.id === id)
+			if (index !== -1) {
+				state.topNewsList[index].title = title
+				state.topNewsList[index].description = description
+			}
+		},
 	},
 })
 
-export const { addTopNews, deleteTopNews } = topNewsSlice.actions
+export const { addTopNews, deleteTopNews, editTopNews } = topNewsSlice.actions
 
 export default topNewsSlice.reducer

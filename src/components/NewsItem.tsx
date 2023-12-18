@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, useState, ChangeEvent } from 'react'
 import {
 	Button,
 	Card,
@@ -7,11 +7,12 @@ import {
 	CardMedia,
 	Grid,
 	Typography,
+	TextField,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
-import { deleteNews } from '../slices/newsSlice'
+import { deleteNews, editNews } from '../slices/newsSlice'
 import { newsType } from './NewsForm'
-import { deleteTopNews } from '../slices/topNewsSlice'
+import { deleteTopNews, editTopNews } from '../slices/topNewsSlice'
 
 type NewsItemProps = {
 	data: newsType
@@ -19,6 +20,8 @@ type NewsItemProps = {
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	const dispatch = useDispatch()
+	const [editMode, setEditMode] = useState(false)
+	const [editedData, setEditedData] = useState({ ...data })
 
 	const deleteHandler = () => {
 		if (data.isTop) {
@@ -26,6 +29,30 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		} else {
 			dispatch(deleteNews(data.id))
 		}
+	}
+
+	const editHandler = () => {
+		setEditMode(true)
+	}
+
+	const saveHandler = () => {
+		if (data.isTop) {
+			dispatch(editTopNews(editedData))
+		} else {
+			dispatch(editNews(editedData))
+		}
+		setEditMode(false)
+	}
+
+	const cancelHandler = () => {
+		setEditedData({ ...data })
+		setEditMode(false)
+	}
+
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target
+
+		setEditedData(prev => ({ ...prev, [name]: value }))
 	}
 
 	return (
@@ -53,18 +80,58 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 					/>
 				)}
 				<CardContent sx={{ flexGrow: 1 }}>
-					<Typography gutterBottom variant='h5' component='h2'>
-						{data.title}
-					</Typography>
-					<Typography>{data.description}</Typography>
+					{editMode ? (
+						<>
+							<TextField
+								fullWidth
+								label='Заголовок'
+								variant='outlined'
+								margin='normal'
+								name='title'
+								value={editedData.title}
+								onChange={handleChange}
+							/>
+							<TextField
+								fullWidth
+								label='Описание'
+								variant='outlined'
+								multiline
+								rows={4}
+								margin='normal'
+								name='description'
+								value={editedData.description}
+								onChange={handleChange}
+							/>
+						</>
+					) : (
+						<>
+							<Typography gutterBottom variant='h5' component='h2'>
+								{data.title}
+							</Typography>
+							<Typography>{data.description}</Typography>
+						</>
+					)}
 				</CardContent>
 				<CardActions>
-					<Button size='small' color='success'>
-						Edit
-					</Button>
-					<Button size='small' color='error' onClick={deleteHandler}>
-						Delete
-					</Button>
+					{editMode ? (
+						<>
+							<Button size='small' color='success' onClick={saveHandler}>
+								Сохранить
+							</Button>
+							<Button size='small' color='error' onClick={cancelHandler}>
+								Отменить
+							</Button>
+						</>
+					) : (
+						<>
+							<Button size='small' color='success' onClick={editHandler}>
+								Редактировать
+							</Button>
+							<Button size='small' color='error' onClick={deleteHandler}>
+								Удалить
+							</Button>
+						</>
+					)}
 				</CardActions>
 			</Card>
 		</Grid>
