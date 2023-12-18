@@ -2,8 +2,7 @@ import { useSelector } from 'react-redux'
 import Dashboard from '../components/UI/Dashboard'
 import { newsType } from '../components/NewsForm'
 import NewsItem from '../components/NewsItem'
-import Title from '../components/UI/Title'
-import { Container, Grid } from '@mui/material'
+import { Container, Grid, Typography } from '@mui/material'
 
 type RootState = {
 	news: {
@@ -16,14 +15,18 @@ const News = () => {
 
 	return (
 		<Dashboard pageTitle='Новости'>
-			<Container sx={{ py: 8 }} maxWidth='md'>
-				<Grid container spacing={4}>
-					{newsList.length ? (
-						newsList.map((news, index) => <NewsItem key={index} data={news} />)
-					) : (
-						<Title>Создайте новость!</Title>
-					)}
-				</Grid>
+			<Container maxWidth='md'>
+				{newsList.length ? (
+					<Grid container spacing={4}>
+						{newsList.map((news, index) => (
+							<NewsItem key={index} data={news} />
+						))}
+					</Grid>
+				) : (
+					<Typography variant='h4' align='center' color='primary'>
+						Создайте новость!
+					</Typography>
+				)}
 			</Container>
 		</Dashboard>
 	)

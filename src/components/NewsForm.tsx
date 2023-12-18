@@ -12,14 +12,17 @@ import {
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
+import { v4 as uuidv4 } from 'uuid'
 
 export type newsType = {
+	id: string
 	title: string
 	description: string
 	image: File | null
 }
 
 const initialState = {
+	id: '',
 	title: '',
 	description: '',
 	image: null,
@@ -64,8 +67,10 @@ const NewsForm: FC = () => {
 			})
 		}
 
+		const id = uuidv4().toString()
+
 		// Dispatch the action with a serializable payload
-		dispatch(addNews({ ...data, image: imageURL }))
+		dispatch(addNews({ ...data, id, image: imageURL }))
 
 		// Reset form state
 		setData(initialState)

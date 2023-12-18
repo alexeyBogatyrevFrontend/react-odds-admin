@@ -9,12 +9,16 @@ import {
 	Grid,
 	Typography,
 } from '@mui/material'
+import { useDispatch } from 'react-redux'
+import { deleteNews } from '../slices/newsSlice'
 
 type NewsItemProps = {
 	data: newsType
 }
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
+	const dispatch = useDispatch()
+
 	return (
 		<Grid item xs={12} sm={6} md={4}>
 			<Card
@@ -40,8 +44,16 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 					<Typography>{data.description}</Typography>
 				</CardContent>
 				<CardActions>
-					<Button size='small'>Edit</Button>
-					<Button size='small'>Delete</Button>
+					<Button size='small' color='success'>
+						Edit
+					</Button>
+					<Button
+						size='small'
+						color='error'
+						onClick={() => dispatch(deleteNews(data.id))}
+					>
+						Delete
+					</Button>
 				</CardActions>
 			</Card>
 		</Grid>

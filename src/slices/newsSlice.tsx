@@ -11,9 +11,12 @@ const newsSlice = createSlice({
 		addNews: (state, action) => {
 			state.newsList.push(action.payload)
 		},
+		deleteNews: (state, action) => {
+			state.newsList = state.newsList.filter(item => item.id !== action.payload)
+		},
 	},
 })
 
-export const { addNews } = newsSlice.actions
+export const { addNews, deleteNews } = newsSlice.actions
 
 export default newsSlice.reducer
