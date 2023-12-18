@@ -9,15 +9,19 @@ import {
 	FormControl,
 	Input,
 	FormHelperText,
+	Switch,
+	FormControlLabel,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
 import { v4 as uuidv4 } from 'uuid'
+import { addTopNews } from '../slices/topNewsSlice'
 
 export type newsType = {
 	id: string
 	title: string
 	description: string
+	isTop: boolean
 	image: File | null
 }
 
@@ -25,6 +29,7 @@ const initialState = {
 	id: '',
 	title: '',
 	description: '',
+	isTop: false,
 	image: null,
 }
 
@@ -69,8 +74,11 @@ const NewsForm: FC = () => {
 
 		const id = uuidv4().toString()
 
-		// Dispatch the action with a serializable payload
-		dispatch(addNews({ ...data, id, image: imageURL }))
+		if (data.isTop) {
+			dispatch(addTopNews({ ...data, id, image: imageURL }))
+		} else {
+			dispatch(addNews({ ...data, id, image: imageURL }))
+		}
 
 		// Reset form state
 		setData(initialState)
@@ -120,11 +128,22 @@ const NewsForm: FC = () => {
 							flexDirection: 'row',
 						}}
 					>
-						<FormControl fullWidth error={imageError}>
+						<FormControlLabel
+							control={
+								<Switch
+									checked={data.isTop}
+									onChange={() =>
+										setData(prev => ({ ...prev, isTop: !prev.isTop }))
+									}
+								/>
+							}
+							label='Это топ новость?'
+						/>
+						<FormControl error={imageError}>
 							<Input
 								id='image-input'
 								type='file'
-								onChange={e =>
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setData(prev => ({
 										...prev,
 										image: e.target.files ? e.target.files[0] : null,

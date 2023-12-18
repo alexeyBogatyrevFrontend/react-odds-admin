@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { newsType } from '../components/NewsForm'
 
-const initialState = {
+type NewsState = {
+	newsList: newsType[]
+}
+
+const initialState: NewsState = {
 	newsList: [],
 }
 
