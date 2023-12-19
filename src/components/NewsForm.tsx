@@ -7,7 +7,6 @@ import {
 	Container,
 	Box,
 	FormControl,
-	Input,
 	FormHelperText,
 	Switch,
 	FormControlLabel,
@@ -16,11 +15,13 @@ import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
 import { v4 as uuidv4 } from 'uuid'
 import { addTopNews } from '../slices/topNewsSlice'
+import TinyEditor from './TinyEditor'
 
 export type newsType = {
 	id: string
 	title: string
 	description: string
+	textEditor: string
 	isTop: boolean
 	image: File | null
 }
@@ -29,6 +30,7 @@ const initialState = {
 	id: '',
 	title: '',
 	description: '',
+	textEditor: '',
 	isTop: false,
 	image: null,
 }
@@ -38,6 +40,7 @@ const NewsForm: FC = () => {
 
 	const [titleError, setTitleError] = useState<boolean>(false)
 	const [descriptionError, setDescriptionError] = useState<boolean>(false)
+	const [tinyEditorError, setTinyEditorError] = useState<boolean>(false)
 	const [imageError, setImageError] = useState<boolean>(false)
 
 	const dispatch = useDispatch()
@@ -48,16 +51,19 @@ const NewsForm: FC = () => {
 		if (
 			!data.title.length ||
 			!data.description.length ||
+			!data.textEditor.length ||
 			!data.image?.name.length
 		) {
 			if (!data.title.length) setTitleError(true)
 			if (!data.description.length) setDescriptionError(true)
+			if (!data.textEditor.length) setTinyEditorError(true)
 			if (!data.image?.name.length) setImageError(true)
 			return
 		}
 
 		setTitleError(false)
 		setDescriptionError(false)
+		setTinyEditorError(false)
 		setImageError(false)
 
 		// Convert File to data URL
@@ -119,6 +125,12 @@ const NewsForm: FC = () => {
 						error={descriptionError}
 						helperText={descriptionError ? 'Заполните описание' : ''}
 					/>
+					<TinyEditor data={data.textEditor} setData={setData} />
+					<FormControl error={tinyEditorError}>
+						<FormHelperText>
+							{tinyEditorError ? 'Заполните контент для страницы новости' : ''}
+						</FormHelperText>
+					</FormControl>
 					<FormControl
 						margin='normal'
 						style={{
@@ -140,9 +152,10 @@ const NewsForm: FC = () => {
 							label='Это топ новость?'
 						/>
 						<FormControl error={imageError}>
-							<Input
+							<input
 								id='image-input'
 								type='file'
+								accept='image/*,.png,.jpg,.jpeg,.webp,.gif'
 								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
 									setData(prev => ({
 										...prev,
