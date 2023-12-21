@@ -16,7 +16,6 @@ import 'react-quill/dist/quill.snow.css' // Import the styles
 import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
 import { v4 as uuidv4 } from 'uuid'
-import { addTopNews } from '../slices/topNewsSlice'
 
 export const modules = {
 	toolbar: [
@@ -114,11 +113,12 @@ const NewsForm: FC = () => {
 
 		const id = uuidv4().toString()
 
-		if (data.isTop) {
-			dispatch(addTopNews({ ...data, id, image: imageURL }))
-		} else {
-			dispatch(addNews({ ...data, id, image: imageURL }))
-		}
+		// if (data.isTop) {
+		// 	dispatch(addTopNews({ ...data, id, image: imageURL }))
+		// } else {
+		// 	dispatch(addNews({ ...data, id, image: imageURL }))
+		// }
+		dispatch(addNews({ ...data, id, image: imageURL }))
 
 		// Reset form state
 		setData(initialState)

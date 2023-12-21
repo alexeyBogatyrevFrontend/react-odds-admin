@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import Dashboard from '../components/UI/Dashboard'
 import { newsType } from '../components/NewsForm'
-import NewsItem from '../components/NewsItem'
+import NewsItem from '../components/NewsItem/NewsItem'
 import { Container, Grid, Typography } from '@mui/material'
 
 type RootState = {

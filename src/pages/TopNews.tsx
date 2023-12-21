@@ -1,20 +1,27 @@
 import { Container, Grid, Typography } from '@mui/material'
 import Dashboard from '../components/UI/Dashboard'
-import NewsItem from '../components/NewsItem'
+import NewsItem from '../components/NewsItem/NewsItem'
 import { useSelector } from 'react-redux'
 import { newsType } from '../components/NewsForm'
 
+// type RootState = {
+// 	topNews: {
+// 		topNewsList: newsType[]
+// 	}
+// }
 type RootState = {
-	topNews: {
-		topNewsList: newsType[]
+	news: {
+		newsList: newsType[]
 	}
 }
 
 const TopNews = () => {
-	const { topNewsList } = useSelector((state: RootState) => state.topNews)
+	const { newsList } = useSelector((state: RootState) => state.news)
+
+	const topNewsList = newsList.filter(news => news.isTop)
 
 	return (
-		<Dashboard pageTitle='Топ новости'>
+		<Dashboard pageTitle='Новости'>
 			<Container maxWidth='md'>
 				{topNewsList.length ? (
 					<Grid container spacing={4}>

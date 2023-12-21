@@ -1,4 +1,3 @@
-// export default NewsItem
 import { FC, useState, ChangeEvent } from 'react'
 import {
 	Button,
@@ -13,10 +12,12 @@ import {
 	Box,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
-import { deleteNews, editNews } from '../slices/newsSlice'
-import { formats, modules, newsType } from './NewsForm'
-import { deleteTopNews, editTopNews } from '../slices/topNewsSlice'
+import { deleteNews, editNews } from '../../slices/newsSlice'
+import { formats, modules, newsType } from '../NewsForm'
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import ReactQuill from 'react-quill'
+
+import styles from './NewsItem.module.css'
 
 type NewsItemProps = {
 	data: newsType
@@ -33,11 +34,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	}
 
 	const deleteHandler = () => {
-		if (data.isTop) {
-			dispatch(deleteTopNews(data.id))
-		} else {
-			dispatch(deleteNews(data.id))
-		}
+		dispatch(deleteNews(data.id))
 	}
 
 	const editHandler = () => {
@@ -54,13 +51,8 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	}
 
 	const saveHandler = () => {
-		if (data.isTop) {
-			dispatch(editTopNews(editedData))
-		} else {
-			dispatch(editNews(editedData))
-		}
+		dispatch(editNews(editedData))
 		setEditMode(false)
-		// handleClose()
 	}
 
 	return (
@@ -72,6 +64,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 						height: '100%',
 						display: 'flex',
 						flexDirection: 'column',
+						position: 'relative',
 					}}
 				>
 					{data.image && (
@@ -87,6 +80,11 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 									: data.image
 							}
 						/>
+					)}
+					{data.isTop && (
+						<div className={styles.fire} title='Это топ новость'>
+							<LocalFireDepartmentIcon sx={{ color: '#ff0000' }} />
+						</div>
 					)}
 					<CardContent sx={{ flexGrow: 1 }}>
 						<Typography gutterBottom variant='h5' component='h2'>
@@ -118,6 +116,10 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 						boxShadow: 24,
 						p: 4,
 						borderRadius: 4,
+						display: 'flex',
+						flexDirection: 'column',
+						maxHeight: '90%',
+						overflowY: 'auto',
 					}}
 				>
 					<Typography variant='h6' gutterBottom>
