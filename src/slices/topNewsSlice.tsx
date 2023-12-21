@@ -22,11 +22,12 @@ const topNewsSlice = createSlice({
 			)
 		},
 		editTopNews: (state, action) => {
-			const { id, title, description } = action.payload
+			const { id, title, description, textEditor } = action.payload
 			const index = state.topNewsList.findIndex(item => item.id === id)
 			if (index !== -1) {
 				state.topNewsList[index].title = title
 				state.topNewsList[index].description = description
+				state.topNewsList[index].textEditor = textEditor
 			}
 		},
 	},

@@ -20,11 +20,12 @@ const newsSlice = createSlice({
 			state.newsList = state.newsList.filter(item => item.id !== action.payload)
 		},
 		editNews: (state, action) => {
-			const { id, title, description } = action.payload
+			const { id, title, description, textEditor } = action.payload
 			const index = state.newsList.findIndex(item => item.id === id)
 			if (index !== -1) {
 				state.newsList[index].title = title
 				state.newsList[index].description = description
+				state.newsList[index].textEditor = textEditor
 			}
 		},
 	},

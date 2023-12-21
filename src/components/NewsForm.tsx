@@ -11,11 +11,45 @@ import {
 	Switch,
 	FormControlLabel,
 } from '@mui/material'
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css' // Import the styles
 import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
 import { v4 as uuidv4 } from 'uuid'
 import { addTopNews } from '../slices/topNewsSlice'
-import TinyEditor from './TinyEditor'
+
+export const modules = {
+	toolbar: [
+		[{ header: '1' }, { header: '2' }, { font: [] }],
+		[{ size: [] }],
+		['bold', 'italic', 'underline', 'strike', 'blockquote'],
+		[
+			{ list: 'ordered' },
+			{ list: 'bullet' },
+			{ indent: '-1' },
+			{ indent: '+1' },
+		],
+		['link', 'image', 'video'],
+		['clean'],
+	],
+}
+
+export const formats = [
+	'header',
+	'font',
+	'size',
+	'bold',
+	'italic',
+	'underline',
+	'strike',
+	'blockquote',
+	'list',
+	'bullet',
+	'indent',
+	'link',
+	'image',
+	'video',
+]
 
 export type newsType = {
 	id: string
@@ -40,7 +74,7 @@ const NewsForm: FC = () => {
 
 	const [titleError, setTitleError] = useState<boolean>(false)
 	const [descriptionError, setDescriptionError] = useState<boolean>(false)
-	const [tinyEditorError, setTinyEditorError] = useState<boolean>(false)
+	const [textEditorError, setTextEditorError] = useState<boolean>(false)
 	const [imageError, setImageError] = useState<boolean>(false)
 
 	const dispatch = useDispatch()
@@ -56,14 +90,14 @@ const NewsForm: FC = () => {
 		) {
 			if (!data.title.length) setTitleError(true)
 			if (!data.description.length) setDescriptionError(true)
-			if (!data.textEditor.length) setTinyEditorError(true)
+			if (!data.textEditor.length) setTextEditorError(true)
 			if (!data.image?.name.length) setImageError(true)
 			return
 		}
 
 		setTitleError(false)
 		setDescriptionError(false)
-		setTinyEditorError(false)
+		setTextEditorError(false)
 		setImageError(false)
 
 		// Convert File to data URL
@@ -125,10 +159,20 @@ const NewsForm: FC = () => {
 						error={descriptionError}
 						helperText={descriptionError ? 'Заполните описание' : ''}
 					/>
-					<TinyEditor data={data.textEditor} setData={setData} />
-					<FormControl error={tinyEditorError}>
+					<ReactQuill
+						theme='snow'
+						modules={modules}
+						formats={formats}
+						value={data.textEditor}
+						onChange={content => {
+							setData(prev => ({ ...prev, textEditor: content }))
+							setDescriptionError(false) // Reset error state on change
+						}}
+						placeholder='Контент для страницы'
+					/>
+					<FormControl error={textEditorError}>
 						<FormHelperText>
-							{tinyEditorError ? 'Заполните контент для страницы новости' : ''}
+							{textEditorError ? 'Заполните контент для страницы новости' : ''}
 						</FormHelperText>
 					</FormControl>
 					<FormControl
