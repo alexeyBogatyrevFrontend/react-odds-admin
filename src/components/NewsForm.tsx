@@ -113,14 +113,8 @@ const NewsForm: FC = () => {
 
 		const id = uuidv4().toString()
 
-		// if (data.isTop) {
-		// 	dispatch(addTopNews({ ...data, id, image: imageURL }))
-		// } else {
-		// 	dispatch(addNews({ ...data, id, image: imageURL }))
-		// }
 		dispatch(addNews({ ...data, id, image: imageURL }))
 
-		// Reset form state
 		setData(initialState)
 	}
 
@@ -154,7 +148,7 @@ const NewsForm: FC = () => {
 						value={data.description}
 						onChange={e => {
 							setData(prev => ({ ...prev, description: e.target.value }))
-							setDescriptionError(false) // Reset error state on change
+							setDescriptionError(false)
 						}}
 						error={descriptionError}
 						helperText={descriptionError ? 'Заполните описание' : ''}
@@ -166,7 +160,7 @@ const NewsForm: FC = () => {
 						value={data.textEditor}
 						onChange={content => {
 							setData(prev => ({ ...prev, textEditor: content }))
-							setDescriptionError(false) // Reset error state on change
+							setTextEditorError(false)
 						}}
 						placeholder='Контент для страницы'
 					/>
@@ -200,12 +194,13 @@ const NewsForm: FC = () => {
 								id='image-input'
 								type='file'
 								accept='image/*,.png,.jpg,.jpeg,.webp,.gif'
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 									setData(prev => ({
 										...prev,
 										image: e.target.files ? e.target.files[0] : null,
 									}))
-								}
+									setImageError(false)
+								}}
 								style={{ display: 'none' }}
 							/>
 							<label htmlFor='image-input'>
