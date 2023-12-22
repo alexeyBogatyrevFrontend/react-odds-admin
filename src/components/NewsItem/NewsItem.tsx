@@ -169,10 +169,11 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 									setEditedData(prev => ({ ...prev, date: dayjs(value) }))
 								}
 								fullWidth
-								margin='normal'
 								variant='inline'
+								sx={{ margin: '16px 0' }}
 							/>
 							<FormControlLabel
+								style={{ margin: '16px 0' }}
 								control={
 									<Switch
 										checked={editedData.isTop}

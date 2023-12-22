@@ -164,17 +164,43 @@ const NewsForm: FC = () => {
 						error={descriptionError}
 						helperText={descriptionError ? 'Заполните описание' : ''}
 					/>
-					<DateTimePicker
-						sx={{ margin: '16px 0' }}
-						label='Дата'
-						fullWidth
-						value={dayjs(data.date)}
-						onChange={(value: Date | null) => {
-							if (value) {
-								setData(prev => ({ ...prev, date: dayjs(value) }))
-							}
+					<FormControl
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							flexDirection: 'row',
 						}}
-					/>
+					>
+						<DateTimePicker
+							sx={{ margin: '16px 0' }}
+							label='Дата'
+							fullWidth
+							value={dayjs(data.date)}
+							onChange={(value: Date | null) => {
+								if (value) {
+									setData(prev => ({ ...prev, date: dayjs(value) }))
+								}
+							}}
+						/>
+						<FormControlLabel
+							style={{ flexDirection: 'row-reverse' }}
+							label={
+								<Typography variant='body2' sx={{ lineHeight: '16px' }}>
+									{data.isTop ? 'Топ новость' : 'Обычная новость'}
+								</Typography>
+							}
+							control={
+								<Switch
+									checked={data.isTop}
+									onChange={() =>
+										setData(prev => ({ ...prev, isTop: !prev.isTop }))
+									}
+								/>
+							}
+						/>
+					</FormControl>
+
 					<ReactQuill
 						theme='snow'
 						modules={modules}
@@ -192,7 +218,6 @@ const NewsForm: FC = () => {
 						</FormHelperText>
 					</FormControl>
 					<FormControl
-						margin='normal'
 						style={{
 							display: 'flex',
 							justifyContent: 'space-between',
@@ -200,17 +225,6 @@ const NewsForm: FC = () => {
 							flexDirection: 'row',
 						}}
 					>
-						<FormControlLabel
-							control={
-								<Switch
-									checked={data.isTop}
-									onChange={() =>
-										setData(prev => ({ ...prev, isTop: !prev.isTop }))
-									}
-								/>
-							}
-							label='Это топ новость?'
-						/>
 						<FormControl error={imageError}>
 							<input
 								id='image-input'
