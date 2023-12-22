@@ -16,6 +16,8 @@ import 'react-quill/dist/quill.snow.css' // Import the styles
 import { useDispatch } from 'react-redux'
 import { addNews } from '../slices/newsSlice'
 import { v4 as uuidv4 } from 'uuid'
+import { DateTimePicker } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
 
 export const modules = {
 	toolbar: [
@@ -56,6 +58,7 @@ export type newsType = {
 	description: string
 	textEditor: string
 	isTop: boolean
+	date: Date
 	image: File | null
 }
 
@@ -65,6 +68,7 @@ const initialState = {
 	description: '',
 	textEditor: '',
 	isTop: false,
+	date: new Date(),
 	image: null,
 }
 
@@ -113,7 +117,14 @@ const NewsForm: FC = () => {
 
 		const id = uuidv4().toString()
 
-		dispatch(addNews({ ...data, id, image: imageURL }))
+		dispatch(
+			addNews({
+				...data,
+				id,
+				date: dayjs(data.date).toISOString(),
+				image: imageURL,
+			})
+		)
 
 		setData(initialState)
 	}
@@ -152,6 +163,17 @@ const NewsForm: FC = () => {
 						}}
 						error={descriptionError}
 						helperText={descriptionError ? 'Заполните описание' : ''}
+					/>
+					<DateTimePicker
+						sx={{ margin: '16px 0' }}
+						label='Дата'
+						fullWidth
+						value={dayjs(data.date)}
+						onChange={(value: Date | null) => {
+							if (value) {
+								setData(prev => ({ ...prev, date: dayjs(value) }))
+							}
+						}}
 					/>
 					<ReactQuill
 						theme='snow'

@@ -20,6 +20,8 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import ReactQuill from 'react-quill'
 
 import styles from './NewsItem.module.css'
+import { DateTimePicker } from '@mui/x-date-pickers'
+import dayjs from 'dayjs'
 
 type NewsItemProps = {
 	data: newsType
@@ -29,6 +31,8 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	const dispatch = useDispatch()
 	const [editMode, setEditMode] = useState(false)
 	const [editedData, setEditedData] = useState({ ...data })
+
+	const formattedDate = dayjs(new Date(data.date)).format('MMMM DD, YYYY HH:mm')
 
 	const handleClose = () => {
 		setEditedData({ ...data })
@@ -57,7 +61,9 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	}
 
 	const saveHandler = () => {
-		dispatch(editNews(editedData))
+		dispatch(
+			editNews({ ...editedData, date: dayjs(editedData.date).toISOString() })
+		)
 		setEditMode(false)
 	}
 
@@ -79,13 +85,16 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 							sx={{
 								// 16:9
 								pt: '56.25%',
+								position: 'relative',
 							}}
 							image={
 								data.image instanceof File
 									? URL.createObjectURL(data.image)
 									: data.image
 							}
-						/>
+						>
+							<span className={styles.date}>{formattedDate}</span>
+						</CardMedia>
 					)}
 					{data.isTop && (
 						<div className={styles.fire} title='Это топ новость'>
@@ -132,7 +141,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 						Редактирование
 					</Typography>
 					<div style={{ display: 'flex', gap: 30 }}>
-						<div style={{ width: '30%' }}>
+						<div style={{ width: '33%' }}>
 							<TextField
 								fullWidth
 								label='Заголовок'
@@ -152,6 +161,16 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 								name='description'
 								value={editedData.description}
 								onChange={handleChange}
+							/>
+							<DateTimePicker
+								label='Дата'
+								value={dayjs(editedData.date)}
+								onChange={(value: Date) =>
+									setEditedData(prev => ({ ...prev, date: dayjs(value) }))
+								}
+								fullWidth
+								margin='normal'
+								variant='inline'
 							/>
 							<FormControlLabel
 								control={
