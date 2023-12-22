@@ -10,6 +10,8 @@ import {
 	TextField,
 	Modal,
 	Box,
+	FormControlLabel,
+	Switch,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { deleteNews, editNews } from '../../slices/newsSlice'
@@ -48,6 +50,10 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 
 	const handleChangeTextEditor = (content: string) => {
 		setEditedData(prev => ({ ...prev, textEditor: content }))
+	}
+
+	const handleChangeIsTop = () => {
+		setEditedData(prev => ({ ...prev, isTop: !prev.isTop }))
 	}
 
 	const saveHandler = () => {
@@ -146,6 +152,21 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 								name='description'
 								value={editedData.description}
 								onChange={handleChange}
+							/>
+							<FormControlLabel
+								control={
+									<Switch
+										checked={editedData.isTop}
+										onChange={handleChangeIsTop}
+									/>
+								}
+								label={
+									<Typography variant='body2' sx={{ lineHeight: '16px' }}>
+										{editedData.isTop
+											? 'Убрать эту новость из топ'
+											: 'Добавить эту новость в топ'}
+									</Typography>
+								}
 							/>
 						</div>
 						<div style={{ width: '70%' }}>
