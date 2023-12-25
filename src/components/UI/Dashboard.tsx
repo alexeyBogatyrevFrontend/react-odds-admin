@@ -152,6 +152,7 @@ const Dashboard: FC<DashboardType> = ({ children, pageTitle }) => {
 						flexGrow: 1,
 						height: '100vh',
 						overflow: 'auto',
+						position: 'relative',
 					}}
 				>
 					<Toolbar />

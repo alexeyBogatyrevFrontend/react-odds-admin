@@ -67,6 +67,17 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		setEditMode(false)
 	}
 
+	function arrayBufferToBase64(buffer: ArrayBuffer): string {
+		const binaryArray = new Uint8Array(buffer)
+		const base64 = binaryArray.reduce(
+			(acc, byte) => acc + String.fromCharCode(byte),
+			''
+		)
+		return btoa(base64)
+	}
+
+	const base64Encoded = data.image ? arrayBufferToBase64(data.image.data) : ''
+
 	return (
 		<>
 			<Grid item xs={12} sm={6} md={4}>
@@ -79,23 +90,19 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 						position: 'relative',
 					}}
 				>
-					{data.image && (
-						<CardMedia
-							component='div'
-							sx={{
-								// 16:9
-								pt: '56.25%',
-								position: 'relative',
-							}}
-							image={
-								data.image instanceof File
-									? URL.createObjectURL(data.image)
-									: data.image
-							}
-						>
-							<span className={styles.date}>{formattedDate}</span>
-						</CardMedia>
-					)}
+					{data.image &&
+						typeof data.image === 'object' && ( // Check if it's an object
+							<CardMedia
+								component='div'
+								sx={{
+									pt: '56.25%',
+									position: 'relative',
+								}}
+								image={`data:image/jpeg;base64,${base64Encoded}`}
+							>
+								<span className={styles.date}>{formattedDate}</span>
+							</CardMedia>
+						)}
 					{data.isTop && (
 						<div className={styles.fire} title='Это топ новость'>
 							<LocalFireDepartmentIcon sx={{ color: '#ff0000' }} />

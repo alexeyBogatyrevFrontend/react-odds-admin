@@ -1,8 +1,10 @@
-import { Container, Grid, Typography } from '@mui/material'
+import { CircularProgress, Container, Grid, Typography } from '@mui/material'
 import Dashboard from '../components/UI/Dashboard'
 import NewsItem from '../components/NewsItem/NewsItem'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { newsType } from '../components/NewsForm'
+import { useEffect } from 'react'
+import { fetchNews } from '../slices/newsSlice'
 
 // type RootState = {
 // 	topNews: {
@@ -12,27 +14,57 @@ import { newsType } from '../components/NewsForm'
 type RootState = {
 	news: {
 		newsList: newsType[]
+		status: string
+		error: string
 	}
 }
 
 const TopNews = () => {
-	const { newsList } = useSelector((state: RootState) => state.news)
+	const { newsList, status, error } = useSelector(
+		(state: RootState) => state.news
+	)
+	const dispatch = useDispatch()
 
+	useEffect(() => {
+		if (status === 'idle') {
+			dispatch(fetchNews())
+		}
+	}, [status, dispatch])
 	const topNewsList = newsList.filter(news => news.isTop)
 
 	return (
-		<Dashboard pageTitle='Новости'>
+		<Dashboard pageTitle='Топ Новости'>
 			<Container maxWidth='md'>
-				{topNewsList.length ? (
-					<Grid container spacing={4}>
-						{topNewsList.map((news, index) => (
-							<NewsItem key={index} data={news} />
-						))}
-					</Grid>
+				{status === 'failed' ? (
+					<p>Error: {error}</p>
 				) : (
-					<Typography variant='h4' align='center' color='primary'>
-						Создайте топ новость!
-					</Typography>
+					<>
+						{status === 'loading' ? (
+							<CircularProgress
+								sx={{
+									position: 'absolute',
+									top: '50%',
+									left: '50%',
+									transform: 'translate(-50%, -50%)',
+								}}
+							/>
+						) : (
+							<>
+								{' '}
+								{topNewsList.length ? (
+									<Grid container spacing={4}>
+										{topNewsList.map((news, index) => (
+											<NewsItem key={index} data={news} />
+										))}
+									</Grid>
+								) : (
+									<Typography variant='h4' align='center' color='primary'>
+										Создайте Топ новость!
+									</Typography>
+								)}{' '}
+							</>
+						)}
+					</>
 				)}
 			</Container>
 		</Dashboard>

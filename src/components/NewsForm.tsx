@@ -1,4 +1,3 @@
-// NewsForm.tsx
 import { useState, FormEvent, FC } from 'react'
 import {
 	TextField,
@@ -12,12 +11,13 @@ import {
 	FormControlLabel,
 } from '@mui/material'
 import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css' // Import the styles
-import { useDispatch } from 'react-redux'
-import { addNews } from '../slices/newsSlice'
+import 'react-quill/dist/quill.snow.css'
 import { v4 as uuidv4 } from 'uuid'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { addNews } from '../slices/newsSlice'
 
 export const modules = {
 	toolbar: [
@@ -73,6 +73,8 @@ const initialState = {
 }
 
 const NewsForm: FC = () => {
+	const dispatch = useDispatch()
+
 	const [data, setData] = useState<newsType>(initialState)
 
 	const [titleError, setTitleError] = useState<boolean>(false)
@@ -80,7 +82,28 @@ const NewsForm: FC = () => {
 	const [textEditorError, setTextEditorError] = useState<boolean>(false)
 	const [imageError, setImageError] = useState<boolean>(false)
 
-	const dispatch = useDispatch()
+	const addNewsBD = async (dataNews: newsType) => {
+		try {
+			const formData = new FormData()
+			formData.append('id', dataNews.id)
+			formData.append('title', dataNews.title)
+			formData.append('description', dataNews.description)
+			formData.append('textEditor', dataNews.textEditor)
+			formData.append('isTop', String(dataNews.isTop)) // Convert boolean to string
+			formData.append('date', dataNews.date.toISOString()) // Convert date to ISO string
+			if (dataNews.image) {
+				formData.append('image', dataNews.image, dataNews.image.name)
+			}
+
+			const response = await axios.post(
+				'http://localhost:3001/news/add',
+				formData
+			)
+			dispatch(addNews(response.data))
+		} catch (error) {
+			console.error('Error adding news:', error.message)
+		}
+	}
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -103,28 +126,15 @@ const NewsForm: FC = () => {
 		setTextEditorError(false)
 		setImageError(false)
 
-		// Convert File to data URL
-		const image = data.image
-		let imageURL = null
-
-		if (image) {
-			imageURL = await new Promise<string | null>(resolve => {
-				const reader = new FileReader()
-				reader.onload = event => resolve(event.target?.result as string)
-				reader.readAsDataURL(image)
-			})
-		}
-
 		const id = uuidv4().toString()
 
-		dispatch(
-			addNews({
-				...data,
-				id,
-				date: dayjs(data.date).toISOString(),
-				image: imageURL,
-			})
-		)
+		const news = {
+			...data,
+			id,
+		}
+
+		// dispatch(addNews(news))
+		addNewsBD(news)
 
 		setData(initialState)
 	}
@@ -144,7 +154,7 @@ const NewsForm: FC = () => {
 						value={data.title}
 						onChange={e => {
 							setData(prev => ({ ...prev, title: e.target.value }))
-							setTitleError(false) // Reset error state on change
+							setTitleError(false)
 						}}
 						error={titleError}
 						helperText={titleError ? 'Заполните заголовок' : ''}
