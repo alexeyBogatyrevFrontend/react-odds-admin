@@ -22,17 +22,31 @@ import ReactQuill from 'react-quill'
 import styles from './NewsItem.module.css'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
+import axios from 'axios'
 
 type NewsItemProps = {
 	data: newsType
 }
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
+	console.log(data)
+
 	const dispatch = useDispatch()
 	const [editMode, setEditMode] = useState(false)
 	const [editedData, setEditedData] = useState({ ...data })
 
 	const formattedDate = dayjs(new Date(data.date)).format('MMMM DD, YYYY HH:mm')
+
+	const deleteNewsBD = async (newsId: string) => {
+		try {
+			const response = await axios.delete(
+				`http://localhost:3001/news/delete/${newsId}`
+			)
+			console.log(response.data)
+		} catch (error) {
+			console.error('Error adding news:', error.message)
+		}
+	}
 
 	const handleClose = () => {
 		setEditedData({ ...data })
@@ -41,6 +55,9 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 
 	const deleteHandler = () => {
 		dispatch(deleteNews(data.id))
+		if (data._id) {
+			deleteNewsBD(data._id)
+		}
 	}
 
 	const editHandler = () => {
