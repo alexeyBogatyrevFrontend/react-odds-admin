@@ -12,6 +12,7 @@ import {
 	Box,
 	FormControlLabel,
 	Switch,
+	FormControl,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { deleteNews, editNews } from '../../slices/newsSlice'
@@ -22,41 +23,28 @@ import ReactQuill from 'react-quill'
 import styles from './NewsItem.module.css'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
-import axios from 'axios'
 
 type NewsItemProps = {
 	data: newsType
 }
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
-	console.log(data)
-
 	const dispatch = useDispatch()
+
 	const [editMode, setEditMode] = useState(false)
 	const [editedData, setEditedData] = useState({ ...data })
+	const [editedImage, setEditedImage] = useState<File | null>(null)
 
 	const formattedDate = dayjs(new Date(data.date)).format('MMMM DD, YYYY HH:mm')
-
-	const deleteNewsBD = async (newsId: string) => {
-		try {
-			const response = await axios.delete(
-				`http://localhost:3001/news/delete/${newsId}`
-			)
-			console.log(response.data)
-		} catch (error) {
-			console.error('Error adding news:', error.message)
-		}
-	}
 
 	const handleClose = () => {
 		setEditedData({ ...data })
 		setEditMode(false)
 	}
 
-	const deleteHandler = () => {
-		dispatch(deleteNews(data.id))
+	const deleteHandler = async () => {
 		if (data._id) {
-			deleteNewsBD(data._id)
+			dispatch(deleteNews(data._id))
 		}
 	}
 
@@ -77,11 +65,40 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		setEditedData(prev => ({ ...prev, isTop: !prev.isTop }))
 	}
 
-	const saveHandler = () => {
-		dispatch(
-			editNews({ ...editedData, date: dayjs(editedData.date).toISOString() })
-		)
-		setEditMode(false)
+	const handleChangeImage = (e: ChangeEvent<HTMLInputElement>) => {
+		setEditedData(prev => ({
+			...prev,
+			image: e.target.files ? e.target.files[0] : null,
+		}))
+		setEditedImage(e.target.files ? e.target.files[0] : null)
+	}
+
+	// const saveHandler = async () => {
+	// 	const imageToUpdate = editedImage instanceof File ? editedImage : null
+
+	// 	const newsToUpdate = {
+	// 		...editedData,
+	// 		image: imageToUpdate,
+	// 	}
+
+	// 	dispatch(editNews(newsToUpdate))
+	// }
+	const saveHandler = async () => {
+		const formData = new FormData()
+
+		formData.append('id', editedData.id)
+		formData.append('_id', editedData._id)
+		formData.append('title', editedData.title)
+		formData.append('description', editedData.description)
+		formData.append('textEditor', editedData.textEditor)
+		formData.append('isTop', editedData.isTop)
+		formData.append('date', editedData.date)
+
+		if (editedImage) {
+			formData.append('image', editedImage)
+		}
+
+		dispatch(editNews(formData))
 	}
 
 	function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -107,19 +124,18 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 						position: 'relative',
 					}}
 				>
-					{data.image &&
-						typeof data.image === 'object' && ( // Check if it's an object
-							<CardMedia
-								component='div'
-								sx={{
-									pt: '56.25%',
-									position: 'relative',
-								}}
-								image={`data:image/jpeg;base64,${base64Encoded}`}
-							>
-								<span className={styles.date}>{formattedDate}</span>
-							</CardMedia>
-						)}
+					{data.image && typeof data.image === 'object' && (
+						<CardMedia
+							component='div'
+							sx={{
+								pt: '56.25%',
+								position: 'relative',
+							}}
+							image={`data:image/jpeg;base64,${base64Encoded}`}
+						>
+							<span className={styles.date}>{formattedDate}</span>
+						</CardMedia>
+					)}
 					{data.isTop && (
 						<div className={styles.fire} title='Это топ новость'>
 							<LocalFireDepartmentIcon sx={{ color: '#ff0000' }} />
@@ -214,6 +230,20 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 							/>
 						</div>
 						<div style={{ width: '70%' }}>
+							<FormControl margin='normal'>
+								<input
+									id='image-input-edit'
+									type='file'
+									accept='image/*,.png,.jpg,.jpeg,.webp,.gif'
+									onChange={handleChangeImage}
+									style={{ display: 'none' }}
+								/>
+								<label htmlFor='image-input-edit'>
+									<Button component='span' variant='outlined' color='primary'>
+										{editedImage ? editedImage.name : 'Загрузить картинку'}
+									</Button>
+								</label>
+							</FormControl>
 							<ReactQuill
 								theme='snow'
 								modules={modules}

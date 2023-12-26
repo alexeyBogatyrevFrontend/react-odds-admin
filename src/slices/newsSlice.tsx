@@ -24,50 +24,123 @@ export const fetchNews = createAsyncThunk<FetchNewsResponse, void>(
 	}
 )
 
+export const addNews = createAsyncThunk<void, newsType>(
+	'news/addNews',
+	async (dataNews: newsType) => {
+		const formData = new FormData()
+		formData.append('id', dataNews.id)
+		formData.append('title', dataNews.title)
+		formData.append('description', dataNews.description)
+		formData.append('textEditor', dataNews.textEditor)
+		formData.append('isTop', String(dataNews.isTop))
+		formData.append('date', dataNews.date.toISOString())
+		if (dataNews.image) {
+			formData.append('image', dataNews.image, dataNews.image.name)
+		}
+
+		const response = await axios.post(
+			'http://localhost:3001/news/add',
+			formData
+		)
+		return response.data
+	}
+)
+
+export const deleteNews = createAsyncThunk<void, string>(
+	'news/deleteNews',
+	async (newsId: string) => {
+		const response = await axios.delete(
+			`http://localhost:3001/news/delete/${newsId}`
+		)
+		return response.data
+	}
+)
+
+// export const editNews = createAsyncThunk<void, newsType>(
+// 	'news/editNews',
+// 	async (editedData: newsType) => {
+// 		const response = await axios.put(
+// 			`http://localhost:3001/news/edit/${editedData._id}`,
+// 			editedData
+// 		)
+// 		return response.data
+// 	}
+// )
+export const editNews = createAsyncThunk<void, FormData>(
+	'news/editNews',
+	async formData => {
+		const response = await axios.put(
+			`http://localhost:3001/news/edit/${formData.get('_id')}`,
+			formData,
+			{
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			}
+		)
+		return response.data
+	}
+)
+
 const newsSlice = createSlice({
 	name: 'news',
 	initialState,
-	reducers: {
-		// addNews: (state, action) => {
-		// 	state.newsList.push(action.payload)
-		// },
-		addNews: (state, action) => {
-			state.newsList = [...state.newsList, action.payload]
-		},
-		deleteNews: (state, action) => {
-			state.newsList = state.newsList.filter(item => item.id !== action.payload)
-		},
-		editNews: (state, action) => {
-			const { id, title, description, textEditor, isTop, date } = action.payload
-			const index = state.newsList.findIndex(item => item.id === id)
-			if (index !== -1) {
-				state.newsList[index].title = title
-				state.newsList[index].description = description
-				state.newsList[index].textEditor = textEditor
-				state.newsList[index].isTop = isTop
-				state.newsList[index].date = date
-			}
-		},
-	},
+	reducers: {},
 	extraReducers: builder => {
-		builder
-			.addCase(fetchNews.pending, state => {
-				state.status = 'loading'
-			})
-			.addCase(
-				fetchNews.fulfilled,
-				(state, action: PayloadAction<newsType[]>) => {
-					state.status = 'succeeded'
-					state.newsList = action.payload
-				}
-			)
-			.addCase(fetchNews.rejected, (state, action) => {
-				state.status = 'failed'
-				state.error = action.error.message ?? 'An error occurred'
-			})
+		// fetch
+		builder.addCase(fetchNews.pending, state => {
+			state.status = 'loading'
+		})
+		builder.addCase(
+			fetchNews.fulfilled,
+			(state, action: PayloadAction<newsType[]>) => {
+				state.status = 'succeeded'
+				state.newsList = action.payload
+			}
+		)
+		builder.addCase(fetchNews.rejected, (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message ?? 'An error occurred'
+		})
+		// add
+		builder.addCase(addNews.pending, state => {
+			state.status = 'loading'
+		})
+		builder.addCase(addNews.fulfilled, (state, action) => {
+			state.status = 'succeeded'
+			state.newsList = action.payload
+		})
+		builder.addCase(addNews.rejected, (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message ?? 'An error occurred'
+		})
+		// edit
+		builder.addCase(editNews.pending, state => {
+			state.status = 'loading'
+		})
+		builder.addCase(editNews.fulfilled, (state, action) => {
+			state.status = 'succeeded'
+			state.newsList = action.payload
+		})
+		builder.addCase(editNews.rejected, (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message ?? 'An error occurred'
+		})
+		// delete
+		builder.addCase(deleteNews.pending, state => {
+			state.status = 'loading'
+		})
+		builder.addCase(deleteNews.fulfilled, (state, action) => {
+			state.status = 'succeeded'
+			state.newsList = action.payload
+		})
+		builder.addCase(deleteNews.rejected, (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message ?? 'An error occurred'
+		})
 	},
 })
 
-export const { addNews, deleteNews, editNews } = newsSlice.actions
+// export const { addNews, deleteNews, editNews } = newsSlice.actions
 
 export default newsSlice.reducer
