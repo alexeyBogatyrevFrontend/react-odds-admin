@@ -14,7 +14,6 @@ import MenuIcon from '@mui/icons-material/Menu'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import { listItems, mainListItems } from './listItems'
 import { FC, ReactNode, useState } from 'react'
-import Title from './Title'
 
 const drawerWidth: number = 240
 
@@ -66,7 +65,6 @@ const Drawer = styled(MuiDrawer, {
 	},
 }))
 
-// TODO remove, this demo shouldn't need to reset the theme.
 type DashboardType = {
 	children: ReactNode
 	pageTitle: string
@@ -123,14 +121,14 @@ const Dashboard: FC<DashboardType> = ({ children, pageTitle }) => {
 							px: [1],
 						}}
 					>
-						<Title
+						<Typography
 							style={{ margin: 0, padding: 8 }}
 							component='h2'
 							variant='h6'
 							color='primary'
 						>
 							Admin Panel
-						</Title>
+						</Typography>
 						<IconButton onClick={toggleDrawer}>
 							<ChevronLeftIcon />
 						</IconButton>

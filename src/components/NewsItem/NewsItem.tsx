@@ -15,27 +15,31 @@ import {
 	FormControl,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
-import { deleteNews, editNews } from '../../slices/newsSlice'
-import { formats, modules, newsType } from '../NewsForm'
+import { AppDispatch, deleteNews, editNews } from '../../slices/newsSlice'
+
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
 import ReactQuill from 'react-quill'
 
 import styles from './NewsItem.module.css'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
+import { formats, modules } from '../../editorConfig'
+import { newsType } from '../../types'
 
 type NewsItemProps = {
 	data: newsType
 }
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
-	const dispatch = useDispatch()
+	const dispatch = useDispatch<AppDispatch>()
 
 	const [editMode, setEditMode] = useState(false)
 	const [editedData, setEditedData] = useState({ ...data })
 	const [editedImage, setEditedImage] = useState<File | null>(null)
 
-	const formattedDate = dayjs(new Date(data.date)).format('MMMM DD, YYYY HH:mm')
+	const formattedDate = data.date
+		? dayjs(data.date).format('MMMM DD, YYYY HH:mm')
+		: 'Дата не была установлена'
 
 	const handleClose = () => {
 		setEditedData({ ...data })
@@ -73,26 +77,19 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		setEditedImage(e.target.files ? e.target.files[0] : null)
 	}
 
-	// const saveHandler = async () => {
-	// 	const imageToUpdate = editedImage instanceof File ? editedImage : null
-
-	// 	const newsToUpdate = {
-	// 		...editedData,
-	// 		image: imageToUpdate,
-	// 	}
-
-	// 	dispatch(editNews(newsToUpdate))
-	// }
 	const saveHandler = async () => {
 		const formData = new FormData()
 
 		formData.append('id', editedData.id)
-		formData.append('_id', editedData._id)
+		if (editedData._id) formData.append('_id', editedData._id)
 		formData.append('title', editedData.title)
 		formData.append('description', editedData.description)
 		formData.append('textEditor', editedData.textEditor)
-		formData.append('isTop', editedData.isTop)
-		formData.append('date', editedData.date)
+		formData.append('isTop', String(editedData.isTop))
+		formData.append(
+			'date',
+			editedData.date instanceof Date ? editedData.date.toISOString() : ''
+		)
 
 		if (editedImage) {
 			formData.append('image', editedImage)
@@ -110,6 +107,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		return btoa(base64)
 	}
 
+	// @ts-expect-error I use here Buffer not file
 	const base64Encoded = data.image ? arrayBufferToBase64(data.image.data) : ''
 
 	return (
@@ -204,12 +202,14 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 							/>
 							<DateTimePicker
 								label='Дата'
+								// @ts-expect-error something wrong with dayjs
 								value={dayjs(editedData.date)}
-								onChange={(value: Date) =>
-									setEditedData(prev => ({ ...prev, date: dayjs(value) }))
+								onChange={(value: Date | null) =>
+									setEditedData(prev => ({
+										...prev,
+										date: dayjs(value).toDate(),
+									}))
 								}
-								fullWidth
-								variant='inline'
 								sx={{ margin: '16px 0' }}
 							/>
 							<FormControlLabel

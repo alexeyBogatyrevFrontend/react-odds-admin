@@ -18,52 +18,9 @@ import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { addNews, fetchNews } from '../slices/newsSlice'
-import { addNewsBD } from '../utils/bdFunc'
-
-export const modules = {
-	toolbar: [
-		[{ header: '1' }, { header: '2' }, { font: [] }],
-		[{ size: [] }],
-		['bold', 'italic', 'underline', 'strike', 'blockquote'],
-		[
-			{ list: 'ordered' },
-			{ list: 'bullet' },
-			{ indent: '-1' },
-			{ indent: '+1' },
-		],
-		['link', 'image', 'video'],
-		['clean'],
-	],
-}
-
-export const formats = [
-	'header',
-	'font',
-	'size',
-	'bold',
-	'italic',
-	'underline',
-	'strike',
-	'blockquote',
-	'list',
-	'bullet',
-	'indent',
-	'link',
-	'image',
-	'video',
-]
-
-export type newsType = {
-	_id?: string
-	id: string
-	title: string
-	description: string
-	textEditor: string
-	isTop: boolean
-	date: Date
-	image: File | null
-}
+import { AppDispatch, addNews } from '../slices/newsSlice'
+import { formats, modules } from '../editorConfig'
+import { RootState, newsType } from '../types'
 
 const initialState = {
 	id: '',
@@ -75,17 +32,9 @@ const initialState = {
 	image: null,
 }
 
-type RootState = {
-	news: {
-		newsList: newsType[]
-		status: string
-		error: string
-	}
-}
-
 const NewsForm: FC = () => {
 	const { status } = useSelector((state: RootState) => state.news)
-	const dispatch = useDispatch()
+	const dispatch = useDispatch<AppDispatch>()
 
 	const [data, setData] = useState<newsType>(initialState)
 
@@ -178,11 +127,11 @@ const NewsForm: FC = () => {
 							<DateTimePicker
 								sx={{ margin: '16px 0' }}
 								label='Дата'
-								fullWidth
+								// @ts-expect-error something wrong with dayjs
 								value={dayjs(data.date)}
 								onChange={(value: Date | null) => {
 									if (value) {
-										setData(prev => ({ ...prev, date: dayjs(value) }))
+										setData(prev => ({ ...prev, date: dayjs(value).toDate() }))
 									}
 								}}
 							/>

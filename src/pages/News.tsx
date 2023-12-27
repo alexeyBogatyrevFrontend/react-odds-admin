@@ -1,24 +1,17 @@
 import { useDispatch, useSelector } from 'react-redux'
 import Dashboard from '../components/UI/Dashboard'
-import { newsType } from '../components/NewsForm'
+
 import NewsItem from '../components/NewsItem/NewsItem'
 import { CircularProgress, Container, Grid, Typography } from '@mui/material'
 import { useEffect } from 'react'
-import { fetchNews } from '../slices/newsSlice'
-
-type RootState = {
-	news: {
-		newsList: newsType[]
-		status: string
-		error: string
-	}
-}
+import { AppDispatch, fetchNews } from '../slices/newsSlice'
+import { RootState } from '../types'
 
 const News = () => {
 	const { newsList, status, error } = useSelector(
 		(state: RootState) => state.news
 	)
-	const dispatch = useDispatch()
+	const dispatch = useDispatch<AppDispatch>()
 
 	useEffect(() => {
 		if (status === 'idle') {

@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { newsType } from '../components/NewsForm'
+import store from '../store'
+import { newsType } from '../types'
 
 type NewsState = {
 	newsList: newsType[]
@@ -8,15 +9,13 @@ type NewsState = {
 	error: string | null
 }
 
-type FetchNewsResponse = newsType[]
-
 const initialState: NewsState = {
 	newsList: [],
 	status: 'idle',
 	error: null,
 }
 
-export const fetchNews = createAsyncThunk<FetchNewsResponse, void>(
+export const fetchNews = createAsyncThunk<newsType[], void>(
 	'news/fetchNews',
 	async () => {
 		const response = await axios.get('http://localhost:3001/news/all')
@@ -24,7 +23,7 @@ export const fetchNews = createAsyncThunk<FetchNewsResponse, void>(
 	}
 )
 
-export const addNews = createAsyncThunk<void, newsType>(
+export const addNews = createAsyncThunk<newsType[], newsType>(
 	'news/addNews',
 	async (dataNews: newsType) => {
 		const formData = new FormData()
@@ -33,7 +32,10 @@ export const addNews = createAsyncThunk<void, newsType>(
 		formData.append('description', dataNews.description)
 		formData.append('textEditor', dataNews.textEditor)
 		formData.append('isTop', String(dataNews.isTop))
-		formData.append('date', dataNews.date.toISOString())
+		formData.append(
+			'date',
+			dataNews.date instanceof Date ? dataNews.date.toISOString() : ''
+		)
 		if (dataNews.image) {
 			formData.append('image', dataNews.image, dataNews.image.name)
 		}
@@ -46,7 +48,7 @@ export const addNews = createAsyncThunk<void, newsType>(
 	}
 )
 
-export const deleteNews = createAsyncThunk<void, string>(
+export const deleteNews = createAsyncThunk<newsType[], string>(
 	'news/deleteNews',
 	async (newsId: string) => {
 		const response = await axios.delete(
@@ -56,17 +58,7 @@ export const deleteNews = createAsyncThunk<void, string>(
 	}
 )
 
-// export const editNews = createAsyncThunk<void, newsType>(
-// 	'news/editNews',
-// 	async (editedData: newsType) => {
-// 		const response = await axios.put(
-// 			`http://localhost:3001/news/edit/${editedData._id}`,
-// 			editedData
-// 		)
-// 		return response.data
-// 	}
-// )
-export const editNews = createAsyncThunk<void, FormData>(
+export const editNews = createAsyncThunk<newsType[], FormData>(
 	'news/editNews',
 	async formData => {
 		const response = await axios.put(
@@ -141,6 +133,5 @@ const newsSlice = createSlice({
 	},
 })
 
-// export const { addNews, deleteNews, editNews } = newsSlice.actions
-
 export default newsSlice.reducer
+export type AppDispatch = typeof store.dispatch

@@ -2,28 +2,15 @@ import { CircularProgress, Container, Grid, Typography } from '@mui/material'
 import Dashboard from '../components/UI/Dashboard'
 import NewsItem from '../components/NewsItem/NewsItem'
 import { useDispatch, useSelector } from 'react-redux'
-import { newsType } from '../components/NewsForm'
 import { useEffect } from 'react'
-import { fetchNews } from '../slices/newsSlice'
-
-// type RootState = {
-// 	topNews: {
-// 		topNewsList: newsType[]
-// 	}
-// }
-type RootState = {
-	news: {
-		newsList: newsType[]
-		status: string
-		error: string
-	}
-}
+import { AppDispatch, fetchNews } from '../slices/newsSlice'
+import { RootState } from '../types'
 
 const TopNews = () => {
 	const { newsList, status, error } = useSelector(
 		(state: RootState) => state.news
 	)
-	const dispatch = useDispatch()
+	const dispatch = useDispatch<AppDispatch>()
 
 	useEffect(() => {
 		if (status === 'idle') {
