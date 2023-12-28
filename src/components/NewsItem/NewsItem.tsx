@@ -34,7 +34,10 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	const dispatch = useDispatch<AppDispatch>()
 
 	const [editMode, setEditMode] = useState(false)
-	const [editedData, setEditedData] = useState({ ...data })
+	const [editedData, setEditedData] = useState({
+		...data,
+		date: new Date(data.date!),
+	})
 	const [editedImage, setEditedImage] = useState<File | null>(null)
 
 	const formattedDate = data.date
@@ -42,7 +45,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		: 'Дата не была установлена'
 
 	const handleClose = () => {
-		setEditedData({ ...data })
+		setEditedData({ ...data, date: new Date(data.date!) })
 		setEditMode(false)
 	}
 
@@ -78,24 +81,7 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	}
 
 	const saveHandler = async () => {
-		const formData = new FormData()
-
-		formData.append('id', editedData.id)
-		if (editedData._id) formData.append('_id', editedData._id)
-		formData.append('title', editedData.title)
-		formData.append('description', editedData.description)
-		formData.append('textEditor', editedData.textEditor)
-		formData.append('isTop', String(editedData.isTop))
-		formData.append(
-			'date',
-			editedData.date instanceof Date ? editedData.date.toISOString() : ''
-		)
-
-		if (editedImage) {
-			formData.append('image', editedImage)
-		}
-
-		dispatch(editNews(formData))
+		dispatch(editNews(editedData))
 	}
 
 	function arrayBufferToBase64(buffer: ArrayBuffer): string {

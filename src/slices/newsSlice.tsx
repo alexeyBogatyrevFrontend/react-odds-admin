@@ -27,6 +27,7 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	'news/addNews',
 	async (dataNews: newsType) => {
 		const formData = new FormData()
+
 		formData.append('id', dataNews.id)
 		formData.append('title', dataNews.title)
 		formData.append('description', dataNews.description)
@@ -39,6 +40,8 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 		if (dataNews.image) {
 			formData.append('image', dataNews.image, dataNews.image.name)
 		}
+
+		console.log(dataNews)
 
 		const response = await axios.post(
 			'http://localhost:3001/news/add',
@@ -58,11 +61,29 @@ export const deleteNews = createAsyncThunk<newsType[], string>(
 	}
 )
 
-export const editNews = createAsyncThunk<newsType[], FormData>(
+export const editNews = createAsyncThunk<newsType[], newsType>(
 	'news/editNews',
-	async formData => {
+	async (editedData: newsType) => {
+		const formData = new FormData()
+
+		formData.append('id', editedData.id)
+		formData.append('_id', editedData._id || '')
+		formData.append('title', editedData.title)
+		formData.append('description', editedData.description)
+		formData.append('textEditor', editedData.textEditor)
+		formData.append('isTop', String(editedData.isTop))
+		formData.append(
+			'date',
+			editedData.date instanceof Date ? editedData.date.toISOString() : ''
+		)
+
+		// Only append image if it has been changed
+		if (editedData.image instanceof File) {
+			formData.append('image', editedData.image, editedData.image.name)
+		}
+
 		const response = await axios.put(
-			`http://localhost:3001/news/edit/${formData.get('_id')}`,
+			`http://localhost:3001/news/edit/${editedData._id}`,
 			formData,
 			{
 				headers: {
