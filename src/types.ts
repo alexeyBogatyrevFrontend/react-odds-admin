@@ -14,5 +14,6 @@ export type RootState = {
 		newsList: newsType[]
 		status: string
 		error: string
+		totalPages: number
 	}
 }

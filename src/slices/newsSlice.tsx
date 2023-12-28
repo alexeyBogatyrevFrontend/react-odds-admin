@@ -7,18 +7,41 @@ type NewsState = {
 	newsList: newsType[]
 	status: 'idle' | 'loading' | 'succeeded' | 'failed'
 	error: string | null
+	totalPages: number
 }
 
 const initialState: NewsState = {
 	newsList: [],
 	status: 'idle',
 	error: null,
+	totalPages: 1,
 }
 
-export const fetchNews = createAsyncThunk<newsType[], void>(
-	'news/fetchNews',
+// export const fetchNews = createAsyncThunk<newsType[], void>(
+// 	'news/fetchNews',
+// 	async () => {
+// 		const response = await axios.get('http://localhost:3001/news/all')
+// 		console.log(response.data)
+// 		return response.data.newsList
+// 	}
+// )
+
+export const fetchNews = createAsyncThunk<
+	newsType[],
+	{ page: number; pageSize: number }
+>('news/fetchNews', async ({ page, pageSize }) => {
+	const response = await axios.get(
+		`http://localhost:3001/news/all?page=${page}&pageSize=${pageSize}`
+	)
+
+	return response.data
+})
+
+export const fetchTopNews = createAsyncThunk<newsType[], void>(
+	'news/fetchTopNews',
 	async () => {
-		const response = await axios.get('http://localhost:3001/news/all')
+		const response = await axios.get('http://localhost:3001/news/top')
+		console.log(response.data)
 		return response.data
 	}
 )
@@ -106,10 +129,28 @@ const newsSlice = createSlice({
 			fetchNews.fulfilled,
 			(state, action: PayloadAction<newsType[]>) => {
 				state.status = 'succeeded'
-				state.newsList = action.payload
+				state.newsList = action.payload.newsList
+				state.totalPages = action.payload.totalPages
 			}
 		)
 		builder.addCase(fetchNews.rejected, (state, action) => {
+			state.status = 'failed'
+			state.error = action.error.message ?? 'An error occurred'
+		})
+		// fetch top
+		builder.addCase(fetchTopNews.pending, state => {
+			state.status = 'loading'
+		})
+
+		builder.addCase(
+			fetchTopNews.fulfilled,
+			(state, action: PayloadAction<newsType[]>) => {
+				state.status = 'succeeded'
+				state.newsList = action.payload
+			}
+		)
+
+		builder.addCase(fetchTopNews.rejected, (state, action) => {
 			state.status = 'failed'
 			state.error = action.error.message ?? 'An error occurred'
 		})

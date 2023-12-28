@@ -12,7 +12,7 @@ import Dashboard from '../components/UI/Dashboard'
 import NewsItem from '../components/NewsItem/NewsItem'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
-import { AppDispatch, fetchNews } from '../slices/newsSlice'
+import { AppDispatch, fetchTopNews } from '../slices/newsSlice'
 import { RootState } from '../types'
 import { sortNewsByDate } from '../utils/sortNewsByDate'
 
@@ -24,12 +24,13 @@ const TopNews = () => {
 	const [sortOrder, setSortOrder] = useState('newest')
 
 	useEffect(() => {
-		if (status === 'idle') {
-			dispatch(fetchNews())
-		}
-	}, [status, dispatch])
+		// if (status === 'idle') {
+		// 	dispatch(fetchTopNews())
+		// }
+		dispatch(fetchTopNews())
+	}, [])
 
-	const topNewsList = newsList.filter(news => news.isTop)
+	// const topNewsList = newsList.filter(news => news.isTop)
 
 	return (
 		<Dashboard pageTitle='Топ Новости'>
@@ -63,9 +64,9 @@ const TopNews = () => {
 										<MenuItem value='oldest'>Сначала старые</MenuItem>
 									</Select>
 								</FormControl>
-								{topNewsList.length ? (
+								{newsList.length ? (
 									<Grid container spacing={4}>
-										{topNewsList
+										{newsList
 											.slice()
 											.sort((a, b) => sortNewsByDate(a, b, sortOrder))
 											.map((news, index) => (
