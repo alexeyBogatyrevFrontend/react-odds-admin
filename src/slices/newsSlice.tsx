@@ -28,7 +28,7 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	async (dataNews: newsType) => {
 		const formData = new FormData()
 
-		formData.append('id', dataNews.id)
+		// formData.append('id', dataNews.id)
 		formData.append('title', dataNews.title)
 		formData.append('description', dataNews.description)
 		formData.append('textEditor', dataNews.textEditor)
@@ -40,8 +40,6 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 		if (dataNews.image) {
 			formData.append('image', dataNews.image, dataNews.image.name)
 		}
-
-		console.log(dataNews)
 
 		const response = await axios.post(
 			'http://localhost:3001/news/add',
@@ -66,7 +64,7 @@ export const editNews = createAsyncThunk<newsType[], newsType>(
 	async (editedData: newsType) => {
 		const formData = new FormData()
 
-		formData.append('id', editedData.id)
+		// formData.append('id', editedData.id)
 		formData.append('_id', editedData._id || '')
 		formData.append('title', editedData.title)
 		formData.append('description', editedData.description)

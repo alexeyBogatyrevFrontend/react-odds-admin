@@ -13,7 +13,7 @@ import {
 } from '@mui/material'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { v4 as uuidv4 } from 'uuid'
+// import { v4 as uuidv4 } from 'uuid'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 
@@ -23,7 +23,7 @@ import { formats, modules } from '../editorConfig'
 import { RootState, newsType } from '../types'
 
 const initialState = {
-	id: '',
+	// id: '',
 	title: '',
 	description: '',
 	textEditor: '',
@@ -64,11 +64,11 @@ const NewsForm: FC = () => {
 		setTextEditorError(false)
 		setImageError(false)
 
-		const id = uuidv4().toString()
+		// const id = uuidv4().toString()
 
 		const news = {
 			...data,
-			id,
+			// id,
 		}
 
 		dispatch(addNews(news))
