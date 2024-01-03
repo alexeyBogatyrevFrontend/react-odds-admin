@@ -8,6 +8,10 @@ type NewsState = {
 	status: 'idle' | 'loading' | 'succeeded' | 'failed'
 	error: string | null
 	totalPages: number
+	pageNews: number
+	pageTopNews: number
+	newsPerPage: number
+	topNewsPerPage: number
 }
 
 const initialState: NewsState = {
@@ -15,16 +19,11 @@ const initialState: NewsState = {
 	status: 'idle',
 	error: null,
 	totalPages: 1,
+	pageNews: 1,
+	pageTopNews: 1,
+	newsPerPage: 6,
+	topNewsPerPage: 6,
 }
-
-// export const fetchNews = createAsyncThunk<newsType[], void>(
-// 	'news/fetchNews',
-// 	async () => {
-// 		const response = await axios.get('http://localhost:3001/news/all')
-// 		console.log(response.data)
-// 		return response.data.newsList
-// 	}
-// )
 
 export const fetchNews = createAsyncThunk<
 	newsType[],
@@ -37,14 +36,16 @@ export const fetchNews = createAsyncThunk<
 	return response.data
 })
 
-export const fetchTopNews = createAsyncThunk<newsType[], void>(
-	'news/fetchTopNews',
-	async () => {
-		const response = await axios.get('http://localhost:3001/news/top')
-		console.log(response.data)
-		return response.data
-	}
-)
+export const fetchTopNews = createAsyncThunk<
+	newsType[],
+	{ page: number; pageSize: number }
+>('news/fetchTopNews', async ({ page, pageSize }) => {
+	const response = await axios.get(
+		`http://localhost:3001/news/top?page=${page}&pageSize=${pageSize}`
+	)
+
+	return response.data
+})
 
 export const addNews = createAsyncThunk<newsType[], newsType>(
 	'news/addNews',
@@ -81,6 +82,17 @@ export const deleteNews = createAsyncThunk<newsType[], string>(
 		return response.data
 	}
 )
+// export const deleteNews = createAsyncThunk<
+// 	{ newsList: newsType[]; page: number },
+// 	string
+// >('news/deleteNews', async (newsId: string, { getState }) => {
+// 	const { pageNews } = (getState() as RootState).news
+// 	const response = await axios.delete(
+// 		`http://localhost:3001/news/delete/${newsId}`
+// 	)
+
+// 	return { newsList: response.data, page: pageNews }
+// })
 
 export const editNews = createAsyncThunk<newsType[], newsType>(
 	'news/editNews',
@@ -115,11 +127,57 @@ export const editNews = createAsyncThunk<newsType[], newsType>(
 		return response.data
 	}
 )
+// export const editNews = createAsyncThunk<
+// 	{ newsList: newsType[]; page: number;  },
+// 	newsType
+// >('news/editNews', async (editedData: newsType, { getState }) => {
+// 	const { pageNews } = (getState() as RootState).news
+
+// 	const formData = new FormData()
+// 	formData.append('_id', editedData._id || '')
+// 	formData.append('title', editedData.title)
+// 	formData.append('description', editedData.description)
+// 	formData.append('textEditor', editedData.textEditor)
+// 	formData.append('isTop', String(editedData.isTop))
+// 	formData.append(
+// 		'date',
+// 		editedData.date instanceof Date ? editedData.date.toISOString() : ''
+// 	)
+
+// 	if (editedData.image instanceof File) {
+// 		formData.append('image', editedData.image, editedData.image.name)
+// 	}
+
+// 	const response = await axios.put(
+// 		`http://localhost:3001/news/edit/${editedData._id}`,
+// 		formData,
+// 		{
+// 			headers: {
+// 				'Content-Type': 'multipart/form-data',
+// 			},
+// 		}
+// 	)
+
+// 	return { newsList: response.data, page: pageNews }
+// })
 
 const newsSlice = createSlice({
 	name: 'news',
 	initialState,
-	reducers: {},
+	reducers: {
+		setPageNews: (state, action) => {
+			state.pageNews = action.payload
+		},
+		setPageTopNews: (state, action) => {
+			state.pageTopNews = action.payload
+		},
+		setNewsPerPage: (state, action) => {
+			state.newsPerPage = action.payload
+		},
+		setTopNewsPerPage: (state, action) => {
+			state.topNewsPerPage = action.payload
+		},
+	},
 	extraReducers: builder => {
 		// fetch
 		builder.addCase(fetchNews.pending, state => {
@@ -141,15 +199,14 @@ const newsSlice = createSlice({
 		builder.addCase(fetchTopNews.pending, state => {
 			state.status = 'loading'
 		})
-
 		builder.addCase(
 			fetchTopNews.fulfilled,
 			(state, action: PayloadAction<newsType[]>) => {
 				state.status = 'succeeded'
-				state.newsList = action.payload
+				state.newsList = action.payload.newsList
+				state.totalPages = action.payload.totalPages
 			}
 		)
-
 		builder.addCase(fetchTopNews.rejected, (state, action) => {
 			state.status = 'failed'
 			state.error = action.error.message ?? 'An error occurred'
@@ -194,4 +251,10 @@ const newsSlice = createSlice({
 })
 
 export default newsSlice.reducer
+export const {
+	setPageNews,
+	setPageTopNews,
+	setNewsPerPage,
+	setTopNewsPerPage,
+} = newsSlice.actions
 export type AppDispatch = typeof store.dispatch

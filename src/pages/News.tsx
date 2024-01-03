@@ -12,35 +12,30 @@ import {
 	InputLabel,
 	FormControl,
 } from '@mui/material'
-import { AppDispatch, fetchNews } from '../slices/newsSlice'
+import { AppDispatch, setNewsPerPage, setPageNews } from '../slices/newsSlice'
 import { RootState } from '../types'
 import { sortNewsByDate } from '../utils/sortNewsByDate'
 import PaginationComponent from '../components/UI/PaginationComponent'
+import { paginateNews } from '../utils/paginationUtils'
 
 const News = () => {
-	const { newsList, status, error, totalPages } = useSelector(
-		(state: RootState) => state.news
-	)
+	const { newsList, status, error, totalPages, pageNews, newsPerPage } =
+		useSelector((state: RootState) => state.news)
 	const dispatch = useDispatch<AppDispatch>()
 
 	const [sortOrder, setSortOrder] = useState('newest')
-	const [currentPage, setCurrentPage] = useState(1)
-	const newsPerPage = 6
-
-	// const indexOfLastNews = currentPage * newsPerPage
-	// const indexOfFirstNews = indexOfLastNews - newsPerPage
-	// const currentNews = newsList.slice(indexOfFirstNews, indexOfLastNews)
+	// const [newsPerPage, setNewsPerPage] = useState(6)
 
 	useEffect(() => {
-		// if (status === 'idle') {
-		// 	dispatch(fetchNews({ page: currentPage, pageSize: newsPerPage }))
-		// }
-		dispatch(fetchNews({ page: currentPage, pageSize: newsPerPage }))
-	}, [])
+		paginateNews(dispatch, pageNews, newsPerPage, false)
+	}, [pageNews, newsPerPage, dispatch])
 
 	const paginate = (pageNumber: number) => {
-		setCurrentPage(pageNumber)
-		dispatch(fetchNews({ page: pageNumber, pageSize: newsPerPage }))
+		dispatch(setPageNews(pageNumber))
+	}
+
+	const loadNewsPerPage = (countNews: number) => {
+		dispatch(setNewsPerPage(countNews))
 	}
 
 	return (
@@ -63,20 +58,43 @@ const News = () => {
 							<>
 								{newsList.length ? (
 									<>
-										<FormControl margin='normal'>
-											<InputLabel id='sortOrderLabel' sx={{ top: '-10px' }}>
-												Сортировка
-											</InputLabel>
-											<Select
-												labelId='sortOrderLabel'
-												id='sortOrder'
-												value={sortOrder}
-												onChange={e => setSortOrder(e.target.value)}
-											>
-												<MenuItem value='newest'>Сначала новые</MenuItem>
-												<MenuItem value='oldest'>Сначала старые</MenuItem>
-											</Select>
-										</FormControl>
+										<div
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+											}}
+										>
+											<FormControl margin='normal'>
+												<InputLabel id='sortOrderLabel' sx={{ top: '-10px' }}>
+													Сортировка
+												</InputLabel>
+												<Select
+													labelId='sortOrderLabel'
+													id='sortOrder'
+													value={sortOrder}
+													onChange={e => setSortOrder(e.target.value)}
+												>
+													<MenuItem value='newest'>Сначала новые</MenuItem>
+													<MenuItem value='oldest'>Сначала старые</MenuItem>
+												</Select>
+											</FormControl>
+											<FormControl margin='normal' sx={{ width: '170px' }}>
+												<InputLabel id='sortOrderLabel' sx={{ top: '-10px' }}>
+													Новостей на странице
+												</InputLabel>
+												<Select
+													labelId='newsPerPage'
+													id='newsPerPage'
+													value={newsPerPage}
+													onChange={e => loadNewsPerPage(+e.target.value)}
+												>
+													<MenuItem value='3'>3</MenuItem>
+													<MenuItem value='6'>6</MenuItem>
+													<MenuItem value='9'>9</MenuItem>
+												</Select>
+											</FormControl>
+										</div>
+
 										<Grid container spacing={4}>
 											{newsList
 												.slice()
@@ -91,7 +109,7 @@ const News = () => {
 											totalNews={newsList.length}
 											totalPages={totalPages}
 											paginate={paginate}
-											currentPage={currentPage}
+											currentPage={pageNews}
 										/>
 									</>
 								) : (

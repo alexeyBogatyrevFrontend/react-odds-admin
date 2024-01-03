@@ -15,5 +15,9 @@ export type RootState = {
 		status: string
 		error: string
 		totalPages: number
+		pageNews: number
+		pageTopNews: number
+		newsPerPage: number
+		topNewsPerPage: number
 	}
 }
