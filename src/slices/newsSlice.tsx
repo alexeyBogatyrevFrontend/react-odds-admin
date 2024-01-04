@@ -96,10 +96,11 @@ export const editNews = createAsyncThunk<
 	newsType[],
 	{
 		editedData: newsType
+		topNews: boolean
 		currentPage: number
 		pageSize: number
 	}
->('news/editNews', async ({ editedData, currentPage, pageSize }) => {
+>('news/editNews', async ({ editedData, topNews, currentPage, pageSize }) => {
 	const formData = new FormData()
 
 	formData.append('_id', editedData._id || '')
@@ -118,7 +119,7 @@ export const editNews = createAsyncThunk<
 	}
 
 	const response = await axios.put(
-		`http://localhost:3001/news/edit/${editedData._id}?currentPage=${currentPage}&pageSize=${pageSize}`,
+		`http://localhost:3001/news/edit/${editedData._id}?topNews=${topNews}&currentPage=${currentPage}&pageSize=${pageSize}`,
 		formData
 	)
 	return response.data

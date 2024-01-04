@@ -98,6 +98,7 @@ const NewsItem: FC<NewsItemProps> = ({ data, topNews }) => {
 		dispatch(
 			editNews({
 				editedData,
+				topNews,
 				currentPage,
 				pageSize,
 			})
