@@ -14,7 +14,7 @@ import {
 	Switch,
 	FormControl,
 } from '@mui/material'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, deleteNews, editNews } from '../../slices/newsSlice'
 
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment'
@@ -24,13 +24,16 @@ import styles from './NewsItem.module.css'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import { formats, modules } from '../../editorConfig'
-import { newsType } from '../../types'
+import { RootState, newsType } from '../../types'
 
 type NewsItemProps = {
 	data: newsType
 }
 
 const NewsItem: FC<NewsItemProps> = ({ data }) => {
+	const { totalPages, pageNews, newsPerPage } = useSelector(
+		(state: RootState) => state.news
+	)
 	const dispatch = useDispatch<AppDispatch>()
 
 	const [editMode, setEditMode] = useState(false)
@@ -51,7 +54,14 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 
 	const deleteHandler = async () => {
 		if (data._id) {
-			dispatch(deleteNews(data._id))
+			dispatch(
+				deleteNews({
+					newsId: data._id,
+					currentPage: pageNews,
+					totalPages,
+					pageSize: newsPerPage,
+				})
+			)
 		}
 	}
 

@@ -73,26 +73,24 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	}
 )
 
-export const deleteNews = createAsyncThunk<newsType[], string>(
-	'news/deleteNews',
-	async (newsId: string) => {
-		const response = await axios.delete(
-			`http://localhost:3001/news/delete/${newsId}`
-		)
-		return response.data
-	}
-)
-// export const deleteNews = createAsyncThunk<
-// 	{ newsList: newsType[]; page: number },
-// 	string
-// >('news/deleteNews', async (newsId: string, { getState }) => {
-// 	const { pageNews } = (getState() as RootState).news
-// 	const response = await axios.delete(
-// 		`http://localhost:3001/news/delete/${newsId}`
-// 	)
-
-// 	return { newsList: response.data, page: pageNews }
-// })
+// export const deleteNews = createAsyncThunk<newsType[], string>(
+// 	'news/deleteNews',
+// 	async (newsId: string) => {
+// 		const response = await axios.delete(
+// 			`http://localhost:3001/news/delete/${newsId}`
+// 		)
+// 		return response.data
+// 	}
+// )
+export const deleteNews = createAsyncThunk<
+	newsType[],
+	{ newsId: string; currentPage: number; totalPages: number; pageSize: number }
+>('news/deleteNews', async ({ newsId, currentPage, totalPages, pageSize }) => {
+	const response = await axios.delete(
+		`http://localhost:3001/news/delete/${newsId}?currentPage=${currentPage}&totalPages=${totalPages}&pageSize=${pageSize}`
+	)
+	return response.data
+})
 
 export const editNews = createAsyncThunk<newsType[], newsType>(
 	'news/editNews',
@@ -127,39 +125,6 @@ export const editNews = createAsyncThunk<newsType[], newsType>(
 		return response.data
 	}
 )
-// export const editNews = createAsyncThunk<
-// 	{ newsList: newsType[]; page: number;  },
-// 	newsType
-// >('news/editNews', async (editedData: newsType, { getState }) => {
-// 	const { pageNews } = (getState() as RootState).news
-
-// 	const formData = new FormData()
-// 	formData.append('_id', editedData._id || '')
-// 	formData.append('title', editedData.title)
-// 	formData.append('description', editedData.description)
-// 	formData.append('textEditor', editedData.textEditor)
-// 	formData.append('isTop', String(editedData.isTop))
-// 	formData.append(
-// 		'date',
-// 		editedData.date instanceof Date ? editedData.date.toISOString() : ''
-// 	)
-
-// 	if (editedData.image instanceof File) {
-// 		formData.append('image', editedData.image, editedData.image.name)
-// 	}
-
-// 	const response = await axios.put(
-// 		`http://localhost:3001/news/edit/${editedData._id}`,
-// 		formData,
-// 		{
-// 			headers: {
-// 				'Content-Type': 'multipart/form-data',
-// 			},
-// 		}
-// 	)
-
-// 	return { newsList: response.data, page: pageNews }
-// })
 
 const newsSlice = createSlice({
 	name: 'news',
@@ -241,7 +206,12 @@ const newsSlice = createSlice({
 		})
 		builder.addCase(deleteNews.fulfilled, (state, action) => {
 			state.status = 'succeeded'
-			state.newsList = action.payload
+			state.newsList = action.payload.newsList
+			state.totalPages = action.payload.totalPages
+			state.pageNews =
+				action.payload.currentPage > action.payload.totalPages
+					? action.payload.totalPages
+					: action.payload.currentPage
 		})
 		builder.addCase(deleteNews.rejected, (state, action) => {
 			state.status = 'failed'
