@@ -73,21 +73,21 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	}
 )
 
-// export const deleteNews = createAsyncThunk<newsType[], string>(
-// 	'news/deleteNews',
-// 	async (newsId: string) => {
-// 		const response = await axios.delete(
-// 			`http://localhost:3001/news/delete/${newsId}`
-// 		)
-// 		return response.data
-// 	}
-// )
+// export const deleteNews = createAsyncThunk<
+// 	newsType[],
+// 	{ newsId: string; currentPage: number; totalPages: number; pageSize: number }
+// >('news/deleteNews', async ({ newsId, currentPage, totalPages, pageSize }) => {
+// 	const response = await axios.delete(
+// 		`http://localhost:3001/news/delete/${newsId}?currentPage=${currentPage}&totalPages=${totalPages}&pageSize=${pageSize}`
+// 	)
+// 	return response.data
+// })
 export const deleteNews = createAsyncThunk<
 	newsType[],
-	{ newsId: string; currentPage: number; totalPages: number; pageSize: number }
->('news/deleteNews', async ({ newsId, currentPage, totalPages, pageSize }) => {
+	{ newsId: string; topNews: boolean; currentPage: number; pageSize: number }
+>('news/deleteNews', async ({ newsId, topNews, currentPage, pageSize }) => {
 	const response = await axios.delete(
-		`http://localhost:3001/news/delete/${newsId}?currentPage=${currentPage}&totalPages=${totalPages}&pageSize=${pageSize}`
+		`http://localhost:3001/news/delete/${newsId}?topNews=${topNews}&currentPage=${currentPage}&pageSize=${pageSize}`
 	)
 	return response.data
 })
@@ -172,6 +172,10 @@ const newsSlice = createSlice({
 				state.status = 'succeeded'
 				state.newsList = action.payload.newsList
 				state.totalPages = action.payload.totalPages
+				state.pageTopNews =
+					action.payload.currentPage > action.payload.totalPages
+						? action.payload.totalPages
+						: action.payload.currentPage
 			}
 		)
 		builder.addCase(fetchTopNews.rejected, (state, action) => {
@@ -211,10 +215,15 @@ const newsSlice = createSlice({
 			state.status = 'succeeded'
 			state.newsList = action.payload.newsList
 			state.totalPages = action.payload.totalPages
-			state.pageNews =
-				action.payload.currentPage > action.payload.totalPages
-					? action.payload.totalPages
-					: action.payload.currentPage
+			action.payload.isTopNews
+				? (state.pageTopNews =
+						action.payload.currentPage > action.payload.totalPages
+							? action.payload.totalPages
+							: action.payload.currentPage)
+				: (state.pageNews =
+						action.payload.currentPage > action.payload.totalPages
+							? action.payload.totalPages
+							: action.payload.currentPage)
 		})
 		builder.addCase(deleteNews.rejected, (state, action) => {
 			state.status = 'failed'

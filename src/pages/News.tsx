@@ -100,7 +100,7 @@ const News = () => {
 												.slice()
 												.sort((a, b) => sortNewsByDate(a, b, sortOrder))
 												.map((news, index) => (
-													<NewsItem key={index} data={news} />
+													<NewsItem key={index} topNews={false} data={news} />
 												))}
 										</Grid>
 

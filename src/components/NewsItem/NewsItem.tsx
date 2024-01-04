@@ -28,10 +28,11 @@ import { RootState, newsType } from '../../types'
 
 type NewsItemProps = {
 	data: newsType
+	topNews: boolean
 }
 
-const NewsItem: FC<NewsItemProps> = ({ data }) => {
-	const { totalPages, pageNews, newsPerPage } = useSelector(
+const NewsItem: FC<NewsItemProps> = ({ data, topNews }) => {
+	const { pageNews, pageTopNews, newsPerPage, topNewsPerPage } = useSelector(
 		(state: RootState) => state.news
 	)
 	const dispatch = useDispatch<AppDispatch>()
@@ -47,6 +48,9 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		? dayjs(data.date).format('MMMM DD, YYYY HH:mm')
 		: 'Дата не была установлена'
 
+	const currentPage = topNews ? pageTopNews : pageNews
+	const pageSize = topNews ? topNewsPerPage : newsPerPage
+
 	const handleClose = () => {
 		setEditedData({ ...data, date: new Date(data.date!) })
 		setEditMode(false)
@@ -57,9 +61,9 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 			dispatch(
 				deleteNews({
 					newsId: data._id,
-					currentPage: pageNews,
-					totalPages,
-					pageSize: newsPerPage,
+					topNews,
+					currentPage,
+					pageSize,
 				})
 			)
 		}
@@ -94,8 +98,8 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 		dispatch(
 			editNews({
 				editedData,
-				currentPage: pageNews,
-				pageSize: newsPerPage,
+				currentPage,
+				pageSize,
 			})
 		)
 	}

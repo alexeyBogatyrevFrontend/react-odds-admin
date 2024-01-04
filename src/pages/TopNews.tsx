@@ -101,7 +101,7 @@ const TopNews = () => {
 												.slice()
 												.sort((a, b) => sortNewsByDate(a, b, sortOrder))
 												.map((news, index) => (
-													<NewsItem key={index} data={news} />
+													<NewsItem key={index} topNews={true} data={news} />
 												))}
 										</Grid>
 										<PaginationComponent
