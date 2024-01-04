@@ -91,7 +91,13 @@ const NewsItem: FC<NewsItemProps> = ({ data }) => {
 	}
 
 	const saveHandler = async () => {
-		dispatch(editNews(editedData))
+		dispatch(
+			editNews({
+				editedData,
+				currentPage: pageNews,
+				pageSize: newsPerPage,
+			})
+		)
 	}
 
 	function arrayBufferToBase64(buffer: ArrayBuffer): string {

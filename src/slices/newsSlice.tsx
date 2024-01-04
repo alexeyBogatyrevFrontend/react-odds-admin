@@ -92,39 +92,37 @@ export const deleteNews = createAsyncThunk<
 	return response.data
 })
 
-export const editNews = createAsyncThunk<newsType[], newsType>(
-	'news/editNews',
-	async (editedData: newsType) => {
-		const formData = new FormData()
-
-		// formData.append('id', editedData.id)
-		formData.append('_id', editedData._id || '')
-		formData.append('title', editedData.title)
-		formData.append('description', editedData.description)
-		formData.append('textEditor', editedData.textEditor)
-		formData.append('isTop', String(editedData.isTop))
-		formData.append(
-			'date',
-			editedData.date instanceof Date ? editedData.date.toISOString() : ''
-		)
-
-		// Only append image if it has been changed
-		if (editedData.image instanceof File) {
-			formData.append('image', editedData.image, editedData.image.name)
-		}
-
-		const response = await axios.put(
-			`http://localhost:3001/news/edit/${editedData._id}`,
-			formData,
-			{
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-			}
-		)
-		return response.data
+export const editNews = createAsyncThunk<
+	newsType[],
+	{
+		editedData: newsType
+		currentPage: number
+		pageSize: number
 	}
-)
+>('news/editNews', async ({ editedData, currentPage, pageSize }) => {
+	const formData = new FormData()
+
+	formData.append('_id', editedData._id || '')
+	formData.append('title', editedData.title)
+	formData.append('description', editedData.description)
+	formData.append('textEditor', editedData.textEditor)
+	formData.append('isTop', String(editedData.isTop))
+	formData.append(
+		'date',
+		editedData.date instanceof Date ? editedData.date.toISOString() : ''
+	)
+
+	// Only append image if it has been changed
+	if (editedData.image instanceof File) {
+		formData.append('image', editedData.image, editedData.image.name)
+	}
+
+	const response = await axios.put(
+		`http://localhost:3001/news/edit/${editedData._id}?currentPage=${currentPage}&pageSize=${pageSize}`,
+		formData
+	)
+	return response.data
+})
 
 const newsSlice = createSlice({
 	name: 'news',
@@ -154,6 +152,10 @@ const newsSlice = createSlice({
 				state.status = 'succeeded'
 				state.newsList = action.payload.newsList
 				state.totalPages = action.payload.totalPages
+				state.pageNews =
+					action.payload.currentPage > action.payload.totalPages
+						? action.payload.totalPages
+						: action.payload.currentPage
 			}
 		)
 		builder.addCase(fetchNews.rejected, (state, action) => {
@@ -194,7 +196,8 @@ const newsSlice = createSlice({
 		})
 		builder.addCase(editNews.fulfilled, (state, action) => {
 			state.status = 'succeeded'
-			state.newsList = action.payload
+			state.newsList = action.payload.newsList
+			state.pageNews = action.payload.currentPage
 		})
 		builder.addCase(editNews.rejected, (state, action) => {
 			state.status = 'failed'
