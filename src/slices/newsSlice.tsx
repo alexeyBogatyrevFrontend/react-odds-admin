@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import axios from 'axios'
 import store from '../store'
-import { newsType } from '../types'
+import { bdDataType, newsType } from '../types'
 
 type NewsState = {
 	newsList: newsType[]
@@ -26,7 +26,7 @@ const initialState: NewsState = {
 }
 
 export const fetchNews = createAsyncThunk<
-	newsType[],
+	bdDataType,
 	{ page: number; pageSize: number }
 >('news/fetchNews', async ({ page, pageSize }) => {
 	const response = await axios.get(
@@ -37,7 +37,7 @@ export const fetchNews = createAsyncThunk<
 })
 
 export const fetchTopNews = createAsyncThunk<
-	newsType[],
+	bdDataType,
 	{ page: number; pageSize: number }
 >('news/fetchTopNews', async ({ page, pageSize }) => {
 	const response = await axios.get(
@@ -74,7 +74,7 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 )
 
 export const deleteNews = createAsyncThunk<
-	newsType[],
+	bdDataType,
 	{ newsId: string; topNews: boolean; currentPage: number; pageSize: number }
 >('news/deleteNews', async ({ newsId, topNews, currentPage, pageSize }) => {
 	const response = await axios.delete(
@@ -84,7 +84,7 @@ export const deleteNews = createAsyncThunk<
 })
 
 export const editNews = createAsyncThunk<
-	newsType[],
+	bdDataType,
 	{
 		editedData: newsType
 		topNews: boolean
@@ -141,7 +141,7 @@ const newsSlice = createSlice({
 		})
 		builder.addCase(
 			fetchNews.fulfilled,
-			(state, action: PayloadAction<newsType[]>) => {
+			(state, action: PayloadAction<bdDataType>) => {
 				state.status = 'succeeded'
 				state.newsList = action.payload.newsList
 				state.totalPages = action.payload.totalPages
@@ -161,7 +161,7 @@ const newsSlice = createSlice({
 		})
 		builder.addCase(
 			fetchTopNews.fulfilled,
-			(state, action: PayloadAction<newsType[]>) => {
+			(state, action: PayloadAction<bdDataType>) => {
 				state.status = 'succeeded'
 				state.newsList = action.payload.newsList
 				state.totalPages = action.payload.totalPages

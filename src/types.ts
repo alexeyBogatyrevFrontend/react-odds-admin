@@ -1,3 +1,10 @@
+export type bdDataType = {
+	newsList: newsType[]
+	totalPages: number
+	currentPage: number
+	isTopNews: boolean
+}
+
 export type newsType = {
 	_id?: string
 	h1: string
