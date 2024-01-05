@@ -1,6 +1,6 @@
 export type newsType = {
 	_id?: string
-	// id: string
+	h1: string
 	title: string
 	description: string
 	textEditor: string

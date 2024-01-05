@@ -52,7 +52,7 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	async (dataNews: newsType) => {
 		const formData = new FormData()
 
-		// formData.append('id', dataNews.id)
+		formData.append('h1', dataNews.h1)
 		formData.append('title', dataNews.title)
 		formData.append('description', dataNews.description)
 		formData.append('textEditor', dataNews.textEditor)
@@ -73,15 +73,6 @@ export const addNews = createAsyncThunk<newsType[], newsType>(
 	}
 )
 
-// export const deleteNews = createAsyncThunk<
-// 	newsType[],
-// 	{ newsId: string; currentPage: number; totalPages: number; pageSize: number }
-// >('news/deleteNews', async ({ newsId, currentPage, totalPages, pageSize }) => {
-// 	const response = await axios.delete(
-// 		`http://localhost:3001/news/delete/${newsId}?currentPage=${currentPage}&totalPages=${totalPages}&pageSize=${pageSize}`
-// 	)
-// 	return response.data
-// })
 export const deleteNews = createAsyncThunk<
 	newsType[],
 	{ newsId: string; topNews: boolean; currentPage: number; pageSize: number }
@@ -104,6 +95,7 @@ export const editNews = createAsyncThunk<
 	const formData = new FormData()
 
 	formData.append('_id', editedData._id || '')
+	formData.append('h1', editedData.h1)
 	formData.append('title', editedData.title)
 	formData.append('description', editedData.description)
 	formData.append('textEditor', editedData.textEditor)

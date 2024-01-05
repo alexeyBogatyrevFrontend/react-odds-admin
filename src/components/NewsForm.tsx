@@ -23,7 +23,7 @@ import { formats, modules } from '../editorConfig'
 import { RootState, newsType } from '../types'
 
 const initialState = {
-	// id: '',
+	h1: '',
 	title: '',
 	description: '',
 	textEditor: '',
@@ -38,6 +38,7 @@ const NewsForm: FC = () => {
 
 	const [data, setData] = useState<newsType>(initialState)
 
+	const [h1Error, setH1Error] = useState<boolean>(false)
 	const [titleError, setTitleError] = useState<boolean>(false)
 	const [descriptionError, setDescriptionError] = useState<boolean>(false)
 	const [textEditorError, setTextEditorError] = useState<boolean>(false)
@@ -47,11 +48,13 @@ const NewsForm: FC = () => {
 		e.preventDefault()
 
 		if (
+			!data.h1.length ||
 			!data.title.length ||
 			!data.description.length ||
 			!data.textEditor.length ||
 			!data.image?.name.length
 		) {
+			if (!data.h1.length) setH1Error(true)
 			if (!data.title.length) setTitleError(true)
 			if (!data.description.length) setDescriptionError(true)
 			if (!data.textEditor.length) setTextEditorError(true)
@@ -59,6 +62,7 @@ const NewsForm: FC = () => {
 			return
 		}
 
+		setH1Error(false)
 		setTitleError(false)
 		setDescriptionError(false)
 		setTextEditorError(false)
@@ -88,6 +92,19 @@ const NewsForm: FC = () => {
 					/>
 				) : (
 					<form onSubmit={handleSubmit}>
+						<TextField
+							fullWidth
+							label='h1'
+							variant='outlined'
+							margin='normal'
+							value={data.h1}
+							onChange={e => {
+								setData(prev => ({ ...prev, h1: e.target.value }))
+								setH1Error(false)
+							}}
+							error={h1Error}
+							helperText={h1Error ? 'Заполните h1' : ''}
+						/>
 						<TextField
 							fullWidth
 							label='Заголовок'

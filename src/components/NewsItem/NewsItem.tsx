@@ -148,9 +148,9 @@ const NewsItem: FC<NewsItemProps> = ({ data, topNews }) => {
 					)}
 					<CardContent sx={{ flexGrow: 1 }}>
 						<Typography gutterBottom variant='h5' component='h2'>
-							{data.title}
+							{data.h1}
 						</Typography>
-						<Typography>{data.description}</Typography>
+						{/* <Typography>{data.description}</Typography> */}
 					</CardContent>
 					<CardActions>
 						<Button size='small' color='success' onClick={editHandler}>
@@ -187,6 +187,15 @@ const NewsItem: FC<NewsItemProps> = ({ data, topNews }) => {
 					</Typography>
 					<div style={{ display: 'flex', gap: 30 }}>
 						<div style={{ width: '33%' }}>
+							<TextField
+								fullWidth
+								label='h1'
+								variant='outlined'
+								margin='normal'
+								name='h1'
+								value={editedData.h1}
+								onChange={handleChange}
+							/>
 							<TextField
 								fullWidth
 								label='Заголовок'
